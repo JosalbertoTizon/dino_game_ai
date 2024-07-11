@@ -61,12 +61,13 @@ show_hitbox = False
 # Game movement speed variable
 movement_speed = 300
 
-# Game movement speed variable
-movement_speed = 300
+# Frame count
+frame = 0
 
 # Main game loop
 while True:
     dt = clock.tick(60) / 1000  # Amount of seconds between each loop
+    frame += 1
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -119,10 +120,11 @@ while True:
     if track_x <= -track_rect.width:
         track_x = 0
 
-    # Update score (for example, based on time survived)
-    score += dt * 10  # Example: increase score by 10 points per second
-    if score > 10 and score < 10.2:
-        movement_speed += 1000
+    # Updates score and increases movement speed
+    if frame % 8 == 0:
+        score += 1
+        if score % 100 == 0 and movement_speed <= MAX_SPEED - SPEED_INCREMENT:
+            movement_speed += SPEED_INCREMENT
 
     # Drawing
     screen.fill((247, 247, 247))  # Clear screen with light gray (Google Dino background color)
@@ -157,9 +159,5 @@ while True:
     # Display the score on the screen
     score_text = font.render(f"Score: {int(score)}", True, (0, 0, 0))
     screen.blit(score_text, (10, 50))
-
-    print(movement_speed)
-
-    print(movement_speed)
 
     pygame.display.flip()
