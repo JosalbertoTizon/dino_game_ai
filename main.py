@@ -118,7 +118,7 @@ while True:
     # Draw obstacles
     for obstacle in obstacles:
         obstacle.draw(screen)
-        obstacle.update(dt)
+        obstacle.update(movement_speed, dt)
         if player.get_rect().colliderect(obstacle.rect):
             pygame.time.delay(2000)
             score = 0
