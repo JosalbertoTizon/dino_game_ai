@@ -5,7 +5,7 @@ from constants import *
 pygame.init()
 
 # Screen settings
-screen_width, screen_height = 800, 600
+screen_width, screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
 screen = pygame.display.set_mode((screen_width, screen_height))
 pygame.display.set_caption("Jump and Fall")
 
@@ -54,6 +54,9 @@ track_x = 0  # Initial x position of the track
 score = 0
 font = pygame.font.Font(None, 36)  # Font for displaying the score
 
+# Game movement speed variable
+movement_speed = 300
+
 # Main game loop
 while True:
     dt = clock.tick(60) / 1000  # Amount of seconds between each loop
@@ -101,12 +104,14 @@ while True:
             duck_animation_timer = 0
 
     # Move the track texture horizontally
-    track_x -= MOVEMENT_SPEED * dt  # Adjust the speed as needed
+    track_x -= movement_speed * dt  # Adjust the speed as needed
     if track_x <= -track_rect.width:
         track_x = 0
 
     # Update score (for example, based on time survived)
     score += dt * 10  # Example: increase score by 10 points per second
+    if score > 10 and score < 10.2:
+        movement_speed += 1000
 
     # Drawing
     screen.fill((247, 247, 247))  # Clear screen with light gray (Google Dino background color)
@@ -129,5 +134,7 @@ while True:
     # Display the score on the screen
     score_text = font.render(f"Score: {int(score)}", True, (0, 0, 0))
     screen.blit(score_text, (10, 10))
+
+    print(movement_speed)
 
     pygame.display.flip()
