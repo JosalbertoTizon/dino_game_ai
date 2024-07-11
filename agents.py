@@ -4,16 +4,15 @@ from constants import *
 
 
 class Obstacle:
-    def __init__(self, image, type, game_speed, obstacles):
+    def __init__(self, image, type, obstacles):
         self.image = image
         self.type = type
         self.rect = self.image[self.type].get_rect()
         self.rect.x = SCREEN_WIDTH
-        self.game_speed = game_speed
         self.obstacles = obstacles
 
-    def update(self, dt):
-        self.rect.x -= self.game_speed * dt
+    def update(self, game_speed, dt):
+        self.rect.x -= game_speed * dt
         if self.rect.x < -self.rect.width:
             self.obstacles.pop()
 
@@ -22,25 +21,25 @@ class Obstacle:
 
 
 class SmallCactus(Obstacle):
-    def __init__(self, image, game_speed, obstacles):
+    def __init__(self, image, obstacles):
         self.type = random.randint(0, 2)
-        super().__init__(image, self.type, game_speed, obstacles)
+        super().__init__(image, self.type, obstacles)
         self.rect.y = FLOOR_HEIGHT - 10
 
 
 class LargeCactus(Obstacle):
-    def __init__(self, image, game_speed, obstacles):
+    def __init__(self, image, obstacles):
         self.type = random.randint(0, 2)
-        super().__init__(image, self.type, game_speed, obstacles)
+        super().__init__(image, self.type, obstacles)
         self.rect.y = FLOOR_HEIGHT - 30
 
 
 class Bird(Obstacle):
-    BIRD_HEIGHTS = [250, 290, 320]
+    BIRD_HEIGHTS = [360, 410, 430]
 
-    def __init__(self, image, game_speed, obstacles):
+    def __init__(self, image, obstacles):
         self.type = 0
-        super().__init__(image, self.type, game_speed, obstacles)
+        super().__init__(image, self.type, obstacles)
         self.rect.y = random.choice(self.BIRD_HEIGHTS)
         self.index = 0
 

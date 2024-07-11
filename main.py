@@ -61,6 +61,8 @@ duck_animation_timer = 0
 
 # Player rect
 player_rect = run_textures[current_run_texture].get_rect(topleft=player_pos)
+player_rect.width = 0.6 * player_rect.width
+player_rect.height = 0.6 * player_rect.height
 
 # Load track texture and rect
 track_texture = pygame.image.load('Images/Track.png').convert_alpha()
@@ -73,7 +75,7 @@ font = pygame.font.Font(None, 36)  # Font for displaying the score
 small_font = pygame.font.Font(None, 24)  # Font for displaying the small message
 
 # Hitbox display flag
-show_hitbox = False
+show_hitbox = True
 
 # Game movement speed variable
 movement_speed = 500
@@ -108,11 +110,11 @@ while True:
 
     if len(obstacles) == 0:
         if random.randint(0, 2) == 0:
-            obstacles.append(SmallCactus(SMALL_CACTUS, movement_speed, obstacles))
+            obstacles.append(SmallCactus(SMALL_CACTUS, obstacles))
         elif random.randint(0, 2) == 1:
-            obstacles.append(LargeCactus(LARGE_CACTUS, movement_speed, obstacles))
+            obstacles.append(LargeCactus(LARGE_CACTUS, obstacles))
         elif random.randint(0, 2) == 2:
-            obstacles.append(Bird(BIRD, movement_speed, obstacles))
+            obstacles.append(Bird(BIRD, obstacles))
 
     # Apply gravity
     if not on_ground:
@@ -160,7 +162,7 @@ while True:
     # Draw objects
     for obstacle in obstacles:
         obstacle.draw(screen)
-        obstacle.update(dt)
+        obstacle.update(movement_speed, dt)
         if player_rect.colliderect(obstacle.rect):
             pygame.time.delay(2000)
             #death_count += 1
@@ -185,9 +187,9 @@ while True:
 
     # Draw the hitbox if enabled
     if show_hitbox:
-        pygame.draw.rect(screen, (255, 0, 0), player_rect, 2)
+        pygame.draw.rect(screen, (255, 0, 0), player_rect, 3)
         for obstacle in obstacles:
-            pygame.draw.rect(screen, (0, 255, 0), obstacle.rect, 2)
+            pygame.draw.rect(screen, (0, 255, 0), obstacle.rect, 3)
 
     # Display the message at the top of the window
     message = "Press H to turn ON/OFF hitbox"
