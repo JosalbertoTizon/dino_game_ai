@@ -53,6 +53,10 @@ track_x = 0  # Initial x position of the track
 # Score variable
 score = 0
 font = pygame.font.Font(None, 36)  # Font for displaying the score
+small_font = pygame.font.Font(None, 24)  # Font for displaying the small message
+
+# Hitbox display flag
+show_hitbox = False
 
 # Main game loop
 while True:
@@ -62,19 +66,23 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_h:
+                show_hitbox = not show_hitbox
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w] and on_ground:
         player_velocity.y = -JUMP_STRENGTH
         on_ground = False
-    if keys[pygame.K_s] and on_ground:
+    if keys[pygame.K_s]:
         is_ducking = True
     else:
         is_ducking = False
 
     # Apply gravity
     if not on_ground:
-        player_velocity.y += GRAVITY * dt
+        gravity = GRAVITY * 3.0 if is_ducking else GRAVITY
+        player_velocity.y += gravity * dt
 
     # Update player position
     player_pos.y += player_velocity.y * dt
@@ -124,10 +132,22 @@ while True:
             screen.blit(run_textures[current_run_texture], player_rect.topleft)
             player_pos = pygame.Vector2(100, FLOOR_HEIGHT)  # Correct height when stop ducking
     else:
-        screen.blit(jump_texture, player_rect.topleft)
+        if is_ducking:
+            screen.blit(duck_textures[current_duck_texture], player_rect.topleft)
+        else:
+            screen.blit(jump_texture, player_rect.topleft)
+
+    # Draw the hitbox if enabled
+    if show_hitbox:
+        pygame.draw.rect(screen, (255, 0, 0), player_rect, 2)
+
+    # Display the message at the top of the window
+    message = "Press H to turn ON/OFF hitbox"
+    message_text = small_font.render(message, True, (255, 0, 0))  # Red color
+    screen.blit(message_text, (10, 10))
 
     # Display the score on the screen
     score_text = font.render(f"Score: {int(score)}", True, (0, 0, 0))
-    screen.blit(score_text, (10, 10))
+    screen.blit(score_text, (10, 50))
 
     pygame.display.flip()
