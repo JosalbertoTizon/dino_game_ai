@@ -14,7 +14,6 @@ pygame.display.set_caption("Jogo do Zé Betão")
 # Clock for managing frame rate
 clock = pygame.time.Clock()
 
-
 RUN_TEXTURE = [
     pygame.image.load('Images/DinoRun1.png').convert_alpha(),
     pygame.image.load('Images/DinoRun2.png').convert_alpha()
@@ -120,8 +119,34 @@ while True:
         obstacle.draw(screen)
         obstacle.update(movement_speed, dt)
         if player.get_rect().colliderect(obstacle.rect):
-            pygame.time.delay(2000)
-            score = 0
+            game_over = True
+
+            # Game Over Screen
+            while game_over:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        pygame.quit()
+                        quit()
+                    if event.type == pygame.KEYDOWN:
+                        if event.key:
+                            score = 0
+                            game_over = False
+                screen.fill((247, 247, 247))  # Clear screen
+                # Fonts
+                game_over_font = pygame.font.Font(None, 72)
+                score_font = pygame.font.Font(None, 36)
+
+                # Game Over Message
+                game_over_text = game_over_font.render("G A M E   O V E R", True, (0, 0, 0))
+                game_over_text_rect = game_over_text.get_rect(center=(screen_width // 2, screen_height // 2 - 50))
+                screen.blit(game_over_text, game_over_text_rect)
+
+                # Final Score Message
+                score_text = score_font.render(f"Score: {score}", True, (0, 0, 0))
+                score_text_rect = score_text.get_rect(center=(screen_width // 2, screen_height // 2))
+                screen.blit(score_text, score_text_rect)
+
+                pygame.display.update()
 
     # Draw hitbox
     if show_hitbox:
@@ -139,4 +164,3 @@ while True:
     screen.blit(score_text, (10, 50))
 
     pygame.display.flip()
-
