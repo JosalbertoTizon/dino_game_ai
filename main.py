@@ -14,7 +14,6 @@ pygame.display.set_caption("Jogo do Zé Betão")
 # Clock for managing frame rate
 clock = pygame.time.Clock()
 
-
 RUN_TEXTURE = [
     pygame.image.load('Images/DinoRun1.png').convert_alpha(),
     pygame.image.load('Images/DinoRun2.png').convert_alpha()
@@ -119,13 +118,13 @@ while True:
     for obstacle in obstacles:
         obstacle.draw(screen)
         obstacle.update(movement_speed, dt)
-        if player.get_rect().colliderect(obstacle.rect):
+        if player.rect.colliderect(obstacle.rect):
             pygame.time.delay(2000)
             score = 0
 
     # Draw hitbox
     if show_hitbox:
-        pygame.draw.rect(screen, (255, 0, 0), player.get_rect(), 2)
+        pygame.draw.rect(screen, (255, 0, 0), player.rect, 2)
         for obstacle in obstacles:
             pygame.draw.rect(screen, (0, 255, 0), obstacle.rect, 3)
 
