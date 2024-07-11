@@ -118,7 +118,7 @@ while True:
     for obstacle in obstacles:
         obstacle.draw(screen)
         obstacle.update(movement_speed, dt)
-        if player.get_rect().colliderect(obstacle.rect):
+        if player.rect.colliderect(obstacle.rect):
             game_over = True
 
             # Game Over Screen
