@@ -84,13 +84,13 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_h:
                 show_hitbox = not show_hitbox
-            elif event.key == pygame.K_UP:
+            elif event.key == pygame.K_x:
                 speed_multiplier = min(10, speed_multiplier + 1)
-            elif event.key == pygame.K_DOWN:
+            elif event.key == pygame.K_z:
                 speed_multiplier = max(1, speed_multiplier - 1)
 
     keys = pygame.key.get_pressed()
-    player.update(keys)
+    player.update(keys, dt)
 
     # Obstacle generation logic
     if len(obstacles) == 0:
