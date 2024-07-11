@@ -9,7 +9,7 @@ pygame.init()
 # Screen settings
 screen_width, screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
 screen = pygame.display.set_mode((screen_width, screen_height))
-pygame.display.set_caption("Jump and Fall")
+pygame.display.set_caption("Dino Game")
 
 # Clock for managing frame rate
 clock = pygame.time.Clock()
