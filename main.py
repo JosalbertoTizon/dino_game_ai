@@ -61,6 +61,9 @@ show_hitbox = False
 # Game movement speed variable
 movement_speed = 300
 
+# Game movement speed variable
+movement_speed = 300
+
 # Main game loop
 while True:
     dt = clock.tick(60) / 1000  # Amount of seconds between each loop
@@ -154,6 +157,8 @@ while True:
     # Display the score on the screen
     score_text = font.render(f"Score: {int(score)}", True, (0, 0, 0))
     screen.blit(score_text, (10, 50))
+
+    print(movement_speed)
 
     print(movement_speed)
 
