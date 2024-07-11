@@ -150,7 +150,7 @@ while True:
 
     # Draw hitbox
     if show_hitbox:
-        pygame.draw.rect(screen, (255, 0, 0), player.get_rect(), 2)
+        pygame.draw.rect(screen, (255, 0, 0), player.rect, 2)
         for obstacle in obstacles:
             pygame.draw.rect(screen, (0, 255, 0), obstacle.rect, 3)
 
