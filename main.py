@@ -86,9 +86,12 @@ obstacles = []
 # Frame count
 frame = 0
 
+# Speed multiplier variable
+speed_multiplier = 1
+
 # Main game loop
 while True:
-    dt = clock.tick(60) / 1000  # Amount of seconds between each loop
+    dt = clock.tick(60) * speed_multiplier / 1000  # Amount of seconds between each loop
     frame += 1
 
     for event in pygame.event.get():
@@ -98,6 +101,10 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_h:
                 show_hitbox = not show_hitbox
+            elif event.key == pygame.K_UP:
+                speed_multiplier = min(10, speed_multiplier + 1)
+            elif event.key == pygame.K_DOWN:
+                speed_multiplier = max(1, speed_multiplier - 1)
 
     keys = pygame.key.get_pressed()
     if keys[pygame.K_w] and on_ground:
@@ -108,6 +115,7 @@ while True:
     else:
         is_ducking = False
 
+    # Obstacle generation logic
     if len(obstacles) == 0:
         if random.randint(0, 2) == 0:
             obstacles.append(SmallCactus(SMALL_CACTUS, obstacles))
@@ -115,6 +123,15 @@ while True:
             obstacles.append(LargeCactus(LARGE_CACTUS, obstacles))
         elif random.randint(0, 2) == 2:
             obstacles.append(Bird(BIRD, obstacles))
+    elif len(obstacles) == 1 and obstacles[0].rect.x < SCREEN_WIDTH / 2:
+        new_obstacle_prob = random.randint(0, 24)  # 5% probability per frame
+        if(new_obstacle_prob == 0):
+            if random.randint(0, 2) == 0:
+                obstacles.append(SmallCactus(SMALL_CACTUS, obstacles))
+            elif random.randint(0, 2) == 1:
+                obstacles.append(LargeCactus(LARGE_CACTUS, obstacles))
+            elif random.randint(0, 2) == 2:
+                obstacles.append(Bird(BIRD, obstacles))
 
     # Apply gravity
     if not on_ground:
@@ -151,7 +168,7 @@ while True:
         track_x = 0
 
     # Updates score and increases movement speed
-    if frame % 8 == 0:
+    if frame * speed_multiplier % 8 == 0:
         score += 1
         if score % 100 == 0 and movement_speed <= MAX_SPEED - SPEED_INCREMENT:
             movement_speed += SPEED_INCREMENT
@@ -164,7 +181,7 @@ while True:
         obstacle.draw(screen)
         obstacle.update(movement_speed, dt)
         if player_rect.colliderect(obstacle.rect):
-            pygame.time.delay(2000)
+            pygame.time.delay(500)
             #death_count += 1
 
     # Draw the track with horizontal scrolling
@@ -200,5 +217,8 @@ while True:
     score_text = font.render(f"Score: {int(score)}", True, (0, 0, 0))
     screen.blit(score_text, (10, 50))
 
-    pygame.display.flip()
+    # Display the speed multiplier on the screen
+    speed_text = font.render(f"Simulation Speed: {speed_multiplier}x", True, (0, 0, 0))
+    screen.blit(speed_text, (10, 90))
 
+    pygame.display.flip()

@@ -14,7 +14,7 @@ class Obstacle:
     def update(self, game_speed, dt):
         self.rect.x -= game_speed * dt
         if self.rect.x < -self.rect.width:
-            self.obstacles.pop()
+            self.obstacles.pop(0)
 
     def draw(self, SCREEN):
         SCREEN.blit(self.image[self.type], self.rect)
@@ -35,7 +35,7 @@ class LargeCactus(Obstacle):
 
 
 class Bird(Obstacle):
-    BIRD_HEIGHTS = [360, 410, 430]
+    BIRD_HEIGHTS = [360, 405, 430]
 
     def __init__(self, image, obstacles):
         self.type = 0
