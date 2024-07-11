@@ -1,6 +1,8 @@
+import random
 import pygame
 import sys
 from constants import *
+from agents import *
 
 pygame.init()
 
@@ -27,6 +29,21 @@ jump_texture = pygame.image.load('Images/DinoJump.png').convert_alpha()
 duck_textures = [
     pygame.image.load('Images/DinoDuck1.png').convert_alpha(),
     pygame.image.load('Images/DinoDuck2.png').convert_alpha()
+]
+SMALL_CACTUS = [
+    pygame.image.load("Images/SmallCactus1.png").convert_alpha(),
+    pygame.image.load("Images/SmallCactus2.png").convert_alpha(),
+    pygame.image.load("Images/SmallCactus3.png").convert_alpha(),
+]
+LARGE_CACTUS = [
+    pygame.image.load("Images/LargeCactus1.png").convert_alpha(),
+    pygame.image.load("Images/LargeCactus2.png").convert_alpha(),
+    pygame.image.load("Images/LargeCactus3.png").convert_alpha(),
+]
+
+BIRD = [
+    pygame.image.load("Images/Bird1.png").convert_alpha(),
+    pygame.image.load("Images/Bird2.png").convert_alpha(),
 ]
 
 # Scale textures to 60x60 pixels (except duck textures)
@@ -59,10 +76,10 @@ small_font = pygame.font.Font(None, 24)  # Font for displaying the small message
 show_hitbox = False
 
 # Game movement speed variable
-movement_speed = 300
+movement_speed = 500
 
-# Game movement speed variable
-movement_speed = 300
+# Obstacles array
+obstacles = []
 
 # Main game loop
 while True:
@@ -84,6 +101,14 @@ while True:
         is_ducking = True
     else:
         is_ducking = False
+
+    if len(obstacles) == 0:
+        if random.randint(0, 2) == 0:
+            obstacles.append(SmallCactus(SMALL_CACTUS, movement_speed, obstacles))
+        elif random.randint(0, 2) == 1:
+            obstacles.append(LargeCactus(LARGE_CACTUS, movement_speed, obstacles))
+        elif random.randint(0, 2) == 2:
+            obstacles.append(Bird(BIRD, movement_speed, obstacles))
 
     # Apply gravity
     if not on_ground:
@@ -121,11 +146,19 @@ while True:
 
     # Update score (for example, based on time survived)
     score += dt * 10  # Example: increase score by 10 points per second
-    if score > 10 and score < 10.2:
-        movement_speed += 1000
+    # if score > 10 and score < 10.2:
+    #     movement_speed += 1000
 
     # Drawing
     screen.fill((247, 247, 247))  # Clear screen with light gray (Google Dino background color)
+
+    # Draw objects
+    for obstacle in obstacles:
+        obstacle.draw(screen)
+        obstacle.update(dt)
+        if player_rect.colliderect(obstacle.rect):
+            pygame.time.delay(2000)
+            #death_count += 1
 
     # Draw the track with horizontal scrolling
     screen.blit(track_texture, (track_x, track_rect.y))
@@ -148,6 +181,8 @@ while True:
     # Draw the hitbox if enabled
     if show_hitbox:
         pygame.draw.rect(screen, (255, 0, 0), player_rect, 2)
+        for obstacle in obstacles:
+            pygame.draw.rect(screen, (0, 255, 0), obstacle.rect, 2)
 
     # Display the message at the top of the window
     message = "Press H to turn ON/OFF hitbox"
@@ -158,8 +193,5 @@ while True:
     score_text = font.render(f"Score: {int(score)}", True, (0, 0, 0))
     screen.blit(score_text, (10, 50))
 
-    print(movement_speed)
-
-    print(movement_speed)
-
     pygame.display.flip()
+
