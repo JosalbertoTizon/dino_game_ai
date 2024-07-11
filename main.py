@@ -119,7 +119,7 @@ while True:
         obstacle.draw(screen)
         obstacle.update(movement_speed, dt)
         if player.rect.colliderect(obstacle.rect):
-            pygame.time.delay(2000)
+            pygame.time.delay(500)
             score = 0
 
     # Draw hitbox
