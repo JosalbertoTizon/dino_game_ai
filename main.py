@@ -120,6 +120,8 @@ while True:
         obstacle.update(movement_speed, dt)
         if player.rect.colliderect(obstacle.rect):
             game_over = True
+            final_score = score
+            score = 0
 
             # Game Over Screen
             while game_over:
@@ -129,7 +131,6 @@ while True:
                         quit()
                     if event.type == pygame.KEYDOWN:
                         if event.key:
-                            score = 0
                             game_over = False
                 screen.fill((247, 247, 247))  # Clear screen
                 # Fonts
@@ -142,7 +143,7 @@ while True:
                 screen.blit(game_over_text, game_over_text_rect)
 
                 # Final Score Message
-                score_text = score_font.render(f"Score: {score}", True, (0, 0, 0))
+                score_text = score_font.render(f"Score: {final_score}", True, (0, 0, 0))
                 score_text_rect = score_text.get_rect(center=(screen_width // 2, screen_height // 2))
                 screen.blit(score_text, score_text_rect)
 
