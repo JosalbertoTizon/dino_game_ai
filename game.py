@@ -33,6 +33,9 @@ class Game:
         # Game movement speed variable
         self.movement_speed = INITIAL_MOVEMENT_SPEED
 
+        # Game obstacle probability variable
+        self.obstacle_prob = INITIAL_OBSTACLE_PROB
+
         # Obstacles array
         self.obstacles = []
 
@@ -78,8 +81,8 @@ class Game:
                     self.obstacles.append(LargeCactus(self.LARGE_CACTUS, self.obstacles))
                 elif random.randint(0, 2) == 2:
                     self.obstacles.append(Bird(self.BIRD, self.obstacles))
-            elif len(self.obstacles) == 1 and self.obstacles[0].rect.x < SCREEN_WIDTH / 2:
-                new_obstacle_prob = random.randint(0, 24)  # 5% probability per frame
+            elif len(self.obstacles) == 1 and self.obstacles[0].rect.x < SCREEN_WIDTH / MINIMUM_OBSTACLE_DISTANCE_RATIO:
+                new_obstacle_prob = random.randint(0, MAX_OBSTACLE_PROB - 1)  # 5% probability per frame
                 if new_obstacle_prob == 0:
                     if random.randint(0, 2) == 0:
                         self.obstacles.append(SmallCactus(self.SMALL_CACTUS, self.obstacles))
@@ -93,11 +96,16 @@ class Game:
             if self.track_x <= -self.track_rect.width:
                 self.track_x = 0
 
-            # Updates score and increases movement speed
+            # Updates score, number of obstacles and increases movement speed
             if self.frame * self.speed_multiplier % 7 == 0:
                 self.score += 1
-                if self.score % 100 == 0 and self.movement_speed <= MAX_SPEED - SPEED_INCREMENT:
-                    self.movement_speed += SPEED_INCREMENT
+                if self.score % D_SCORE_TO_INCREASE_SPEED == 0:
+                    if self.movement_speed <= MAX_SPEED - SPEED_INCREMENT:
+                        self.movement_speed += SPEED_INCREMENT
+                if self.score % D_SCORE_TO_INCREASE_PROB == 0:
+                    if self.obstacle_prob <= MAX_OBSTACLE_PROB:
+                        self.obstacle_prob += OBSTACLE_PROB_INCREMENT
+
 
             # Draw the track with horizontal scrolling
             self.screen.blit(self.TRACK_TEXTURE, (self.track_x, self.track_rect.y))
