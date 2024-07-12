@@ -84,8 +84,8 @@ class Game:
                     self.obstacles.append(LargeCactus(self.LARGE_CACTUS, self.obstacles))
                 elif random.randint(0, 2) == 2:
                     self.obstacles.append(Bird(self.BIRD, self.obstacles))
-            elif len(self.obstacles) == 1 and self.obstacles[0].rect.x < SCREEN_WIDTH / MINIMUM_OBSTACLE_DISTANCE_RATIO:
-                new_obstacle_prob = random.randint(0, MAX_OBSTACLE_PROB - 1)  # 5% probability per frame
+            elif len(self.obstacles) == 1 and self.obstacles[0].rect.x < SCREEN_WIDTH * (1 - 1 / MINIMUM_OBSTACLE_DISTANCE_RATIO):
+                new_obstacle_prob = random.randint(0, int(100 / MAX_OBSTACLE_PROB) - 1)
                 if new_obstacle_prob == 0:
                     if random.randint(0, 2) == 0:
                         self.obstacles.append(SmallCactus(self.SMALL_CACTUS, self.obstacles))
