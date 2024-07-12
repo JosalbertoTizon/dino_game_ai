@@ -130,7 +130,7 @@ class LargeCactus(Obstacle):
 
 
 class Bird(Obstacle):
-    BIRD_HEIGHTS = [360, 405, 430]
+    BIRD_HEIGHTS = [360, 395, 430]
 
     def __init__(self, image, obstacles):
         self.type = 0

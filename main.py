@@ -1,5 +1,4 @@
 import random
-import pygame
 import sys
 from constants import *
 from agents import *
@@ -121,7 +120,7 @@ while True:
         track_x = 0
 
     # Updates score and increases movement speed
-    if frame * speed_multiplier % 8 == 0:
+    if frame * speed_multiplier % 7 == 0:
         score += 1
         if score % 100 == 0 and movement_speed <= MAX_SPEED - SPEED_INCREMENT:
             movement_speed += SPEED_INCREMENT
