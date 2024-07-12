@@ -3,7 +3,7 @@ from agents import *
 
 
 class Game:
-    def __init__(self):
+    def __init__(self, speed_multiplier=1):
         pygame.init()
 
         # Screen settings
@@ -42,7 +42,7 @@ class Game:
         self.frame = 0
 
         # Speed multiplier variable
-        self.speed_multiplier = 1
+        self.speed_multiplier = speed_multiplier
 
     def loop(self):
         # Main game loop
@@ -110,9 +110,9 @@ class Game:
                 if self.player.rect.colliderect(obstacle.rect):
                     game_over = True
                     final_score = self.score
-                    score = 0
-                    movement_speed = INITIAL_MOVEMENT_SPEED
-                    obstacles = []
+                    self.score = 0
+                    self.movement_speed = INITIAL_MOVEMENT_SPEED
+                    self.obstacles = []
                     # Game Over Screen
                     while game_over:
                         for event in pygame.event.get():
