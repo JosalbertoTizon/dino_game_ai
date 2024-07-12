@@ -58,9 +58,9 @@ class Game:
                     if event.key == pygame.K_h:
                         self.show_hitbox = not self.show_hitbox
                     elif event.key == pygame.K_x:
-                        speed_multiplier = min(10, self.speed_multiplier + 1)
+                        self.speed_multiplier = min(10, self.speed_multiplier + 1)
                     elif event.key == pygame.K_z:
-                        speed_multiplier = max(1, self.speed_multiplier - 1)
+                        self.speed_multiplier = max(1, self.speed_multiplier - 1)
 
             # Draw the clear background screen
             self.screen.fill((247, 247, 247))
