@@ -17,6 +17,7 @@ class Dinosaur:
         self.is_ducking = False
         self.is_running = True
         self.is_jumping = False
+        self.is_air_ducking = False
 
         self.step_index = 0
         self.jump_vel = JUMP_STRENGTH
@@ -34,22 +35,33 @@ class Dinosaur:
             self.run()
         if self.is_jumping:
             self.jump(dt)
+        if self.is_air_ducking:
+            self.air_duck(dt)
 
         if self.step_index >= 10:
             self.step_index = 0
 
-        if (userInput[pygame.K_UP] or userInput[pygame.K_SPACE]) and not self.is_jumping:
+        if (userInput[pygame.K_UP] or userInput[pygame.K_SPACE]) and not self.is_air_ducking and not self.is_ducking:
             self.is_ducking = False
             self.is_running = False
             self.is_jumping = True
-        elif userInput[pygame.K_DOWN] and not self.is_jumping:
+            self.is_air_ducking = False
+        elif userInput[pygame.K_DOWN] and not self.is_jumping and not self.is_air_ducking:
             self.is_ducking = True
             self.is_running = False
             self.is_jumping = False
-        elif not (self.is_jumping or userInput[pygame.K_DOWN]):
+            self.is_air_ducking = False
+        elif not (self.is_jumping or self.is_air_ducking or userInput[pygame.K_DOWN]):
             self.is_ducking = False
             self.is_running = True
             self.is_jumping = False
+            self.is_air_ducking = False
+        elif userInput[pygame.K_DOWN] and self.is_jumping:
+            self.is_ducking = False
+            self.is_running = False
+            self.is_jumping = False
+            self.is_air_ducking = True
+
 
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
@@ -69,11 +81,18 @@ class Dinosaur:
 
     def jump(self, dt):
         self.image = self.jump_img
-        if self.is_jumping:
-            self.rect.y -= self.jump_vel * dt
-            self.jump_vel -= GRAVITY * dt
+        self.rect.y -= self.jump_vel * dt
+        self.jump_vel -= GRAVITY * dt
         if self.jump_vel < -JUMP_STRENGTH:
             self.is_jumping = False
+            self.jump_vel = JUMP_STRENGTH
+
+    def air_duck(self, dt):
+        self.image = self.duck_img[self.step_index // 5]
+        self.rect.y -= self.jump_vel * dt
+        self.jump_vel -= 3.0 * GRAVITY * dt
+        if self.rect.y > FLOOR_HEIGHT:
+            self.is_air_ducking = False
             self.jump_vel = JUMP_STRENGTH
 
     def draw(self, screen):
