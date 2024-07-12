@@ -139,6 +139,7 @@ class Game:
                         self.screen.blit(score_text, score_text_rect)
 
                         pygame.display.update()
+                        return final_score
 
             # Draw hitbox
             if self.show_hitbox:

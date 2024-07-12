@@ -82,9 +82,10 @@ class Dinosaur:
         self.image = self.jump_img
         self.rect.y -= self.jump_vel * dt
         self.jump_vel -= GRAVITY * dt
-        if self.jump_vel < -JUMP_STRENGTH:
+        if self.rect.y >= FLOOR_HEIGHT:
             self.is_jumping = False
             self.jump_vel = JUMP_STRENGTH
+            self.rect.y = FLOOR_HEIGHT
 
     def air_duck(self, dt):
         self.image = self.duck_img[self.step_index // 5]
@@ -93,6 +94,7 @@ class Dinosaur:
         if self.rect.y > FLOOR_HEIGHT:
             self.is_air_ducking = False
             self.jump_vel = JUMP_STRENGTH
+            self.rect.y = FLOOR_HEIGHT
 
     def draw(self, screen):
         screen.blit(self.image, (self.rect.x, self.rect.y))
