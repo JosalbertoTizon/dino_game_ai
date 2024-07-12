@@ -137,7 +137,7 @@ class Game:
 
                         # Ends Game if training
                         if self.training_mode:
-                            return final_score
+                            return [final_score, self.speed_multiplier]
 
                         # Fonts
                         game_over_font = pygame.font.Font(None, 72)

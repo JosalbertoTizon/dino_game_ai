@@ -1,5 +1,10 @@
 from game import Game
 
-game = Game(training=False)
+speed_multiplier = 1
+
+# Choose game mode
+training = True
+# training = False
 while True:
-    reward = game.loop()
+    game = Game(speed_multiplier, training)
+    [reward, speed_multiplier] = game.loop()
