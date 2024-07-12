@@ -59,7 +59,7 @@ small_font = pygame.font.Font(None, 24)  # Font for displaying the small message
 show_hitbox = True
 
 # Game movement speed variable
-movement_speed = 500
+movement_speed = INITIAL_MOVEMENT_SPEED
 
 # Obstacles array
 obstacles = []
@@ -89,6 +89,11 @@ while True:
             elif event.key == pygame.K_z:
                 speed_multiplier = max(1, speed_multiplier - 1)
 
+    # Draw the clear background screen
+    screen.fill((247, 247, 247))
+
+    # Draw player
+    player.draw(screen)
     keys = pygame.key.get_pressed()
     player.update(keys, dt)
 
@@ -121,15 +126,9 @@ while True:
         if score % 100 == 0 and movement_speed <= MAX_SPEED - SPEED_INCREMENT:
             movement_speed += SPEED_INCREMENT
 
-    # Draw the clear background screen
-    screen.fill((247, 247, 247))
-
     # Draw the track with horizontal scrolling
     screen.blit(TRACK_TEXTURE, (track_x, track_rect.y))
     screen.blit(TRACK_TEXTURE, (track_x + track_rect.width, track_rect.y))
-
-    # Draw player
-    player.draw(screen)
 
     # Draw obstacles
     for obstacle in obstacles:
@@ -139,6 +138,8 @@ while True:
             game_over = True
             final_score = score
             score = 0
+            movement_speed = INITIAL_MOVEMENT_SPEED
+            obstacles = []
             # Game Over Screen
             while game_over:
                 for event in pygame.event.get():
