@@ -62,7 +62,6 @@ class Dinosaur:
             self.is_jumping = False
             self.is_air_ducking = True
 
-
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
         self.rect = self.image.get_rect()
@@ -75,8 +74,8 @@ class Dinosaur:
         self.rect = self.image.get_rect()
         self.rect.x = self.X_POS
         self.rect.y = self.Y_POS
-        self.rect.width = 0.6 * self.rect.width
-        self.rect.height = 0.6 * self.rect.height
+        self.rect.width = 0.7 * self.rect.width
+        self.rect.height = 0.7 * self.rect.height
         self.step_index += 1
 
     def jump(self, dt):

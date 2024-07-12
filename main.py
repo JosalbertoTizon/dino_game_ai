@@ -92,10 +92,10 @@ while True:
     # Draw the clear background screen
     screen.fill((247, 247, 247))
 
-    # Draw player
-    player.draw(screen)
+    # Update and draw player
     keys = pygame.key.get_pressed()
     player.update(keys, dt)
+    player.draw(screen)
 
     # Obstacle generation logic
     if len(obstacles) == 0:
