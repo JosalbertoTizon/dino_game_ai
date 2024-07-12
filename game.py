@@ -50,6 +50,9 @@ class Game:
         # Speed multiplier variable
         self.speed_multiplier = speed_multiplier
 
+        # Game State
+        self.state = self.get_state()
+
     def loop(self):
         # Main game loop
         while True:
@@ -175,6 +178,38 @@ class Game:
             speed_text = self.font.render(f"Simulation Speed: {self.speed_multiplier}x", True, (0, 0, 0))
             self.screen.blit(speed_text, (10, 90))
             pygame.display.flip()
+
+    def get_state(self):
+
+        # Player state
+        player_speed = self.movement_speed
+        player_height = self.player.rect.y
+
+        # Identify next obstacle
+        if self.obstacles:
+            next_obstacle = self.obstacles[0]
+            # Get bird position
+            if type(next_obstacle).__name__ == "Bird":
+                bird_y = next_obstacle.rect.y
+            else:
+                bird_y = 0
+            distance_to_next = next_obstacle.rect.x - self.player.rect.x
+            obstacle_height = next_obstacle.rect.height
+            obstacle_width = next_obstacle.rect.width
+        else:
+            bird_y, distance_to_next, obstacle_height, obstacle_width, obstacle_type = 0, 0, 0, 0, 'None'
+
+        # Return current state
+        return [
+            player_speed,
+            player_height,
+            distance_to_next,
+            obstacle_height,
+            obstacle_width,
+            bird_y,
+            int(self.player.is_jumping),
+            int(self.player.is_ducking),
+        ]
 
     def load_textures(self):
         RUN_TEXTURE = [
