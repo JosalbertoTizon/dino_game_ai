@@ -3,8 +3,11 @@ from agents import *
 
 
 class Game:
-    def __init__(self, speed_multiplier=1):
+    def __init__(self, speed_multiplier=1, training=False):
         pygame.init()
+
+        # Game mode
+        self.training_mode = training
 
         # Screen settings
         self.screen_width, self.screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
@@ -123,6 +126,11 @@ class Game:
                                 if event.key:
                                     game_over = False
                         self.screen.fill((247, 247, 247))  # Clear screen
+
+                        # Ends Game if training
+                        if self.training_mode:
+                            return final_score
+
                         # Fonts
                         game_over_font = pygame.font.Font(None, 72)
                         score_font = pygame.font.Font(None, 36)
@@ -139,7 +147,6 @@ class Game:
                         self.screen.blit(score_text, score_text_rect)
 
                         pygame.display.update()
-                        return final_score
 
             # Draw hitbox
             if self.show_hitbox:
