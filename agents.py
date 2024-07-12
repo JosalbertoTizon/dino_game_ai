@@ -140,6 +140,11 @@ class Bird(Obstacle):
         self.rect.y = random.choice(self.BIRD_HEIGHTS)
         self.index = 0
 
+    def update(self, game_speed, dt):
+        self.rect.x -= (game_speed + BIRD_RELATIVE_SPEED) * dt
+        if self.rect.x < -self.rect.width:
+            self.obstacles.pop(0)
+
     def draw(self, screen):
         if self.index >= 9:
             self.index = 0
