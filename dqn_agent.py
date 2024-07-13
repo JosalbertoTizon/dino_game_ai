@@ -23,7 +23,7 @@ class DQNAgent:
         model.add(layers.Dense(2, activation='relu'))
         model.add(layers.Dense(2, activation='relu'))
         model.add(layers.Dense(self.action_size, activation='linear'))
-        model.compile(loss='mse', optimizer=optimizers.Adam(lr=self.learning_rate))
+        model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
 
         return model
 

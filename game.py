@@ -10,7 +10,7 @@ class Game:
         self.training_mode = training
 
         # Choose if game can be played manually
-        self.manual_playing = True
+        self.manual_playing = False
 
         # Screen settings
         self.screen_width, self.screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
@@ -152,7 +152,7 @@ class Game:
 
                     # Ends Game if training
                     if self.training_mode:
-                        return [self.get_state(), 0, self.speed_multiplier, game_over]
+                        return [self.get_state(), self.speed_multiplier, game_over]
 
                     # Fonts
                     game_over_font = pygame.font.Font(None, 72)
@@ -192,7 +192,7 @@ class Game:
         pygame.display.flip()
 
         if self.training_mode:
-            return [self.get_state(), 1, self.speed_multiplier, game_over]
+            return [self.get_state(), self.speed_multiplier, game_over]
 
     def get_state(self):
 
@@ -212,7 +212,7 @@ class Game:
             obstacle_height = next_obstacle.rect.height
             obstacle_width = next_obstacle.rect.width
         else:
-            bird_y, distance_to_next, obstacle_height, obstacle_width, obstacle_type = 0, 0, 0, 0, 'None'
+            bird_y, distance_to_next, obstacle_height, obstacle_width = 0, 0, 0, 0
 
         # Return current state
         return [
@@ -223,7 +223,9 @@ class Game:
             obstacle_width,
             bird_y,
             int(self.player.is_jumping),
+            int(self.player.is_running),
             int(self.player.is_ducking),
+            int(self.player.is_air_ducking),
         ]
 
     def load_textures(self):
