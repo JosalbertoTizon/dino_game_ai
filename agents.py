@@ -28,7 +28,7 @@ class Dinosaur:
         self.rect.x = self.X_POS + 100
         self.rect.y = self.Y_POS
 
-    def update(self, userInput, dt):
+    def update(self, action, dt):
         if self.is_ducking:
             self.duck()
         if self.is_running:
@@ -41,22 +41,22 @@ class Dinosaur:
         if self.step_index >= 10:
             self.step_index = 0
 
-        if (userInput[pygame.K_UP] or userInput[pygame.K_SPACE]) and not self.is_air_ducking and not self.is_ducking:
+        if action == 1 and not self.is_air_ducking and not self.is_ducking:
             self.is_ducking = False
             self.is_running = False
             self.is_jumping = True
             self.is_air_ducking = False
-        elif userInput[pygame.K_DOWN] and not self.is_jumping and not self.is_air_ducking:
+        elif action == 2 and not self.is_jumping and not self.is_air_ducking:
             self.is_ducking = True
             self.is_running = False
             self.is_jumping = False
             self.is_air_ducking = False
-        elif not (self.is_jumping or self.is_air_ducking or userInput[pygame.K_DOWN]):
+        elif not (self.is_jumping or self.is_air_ducking or action == 2):
             self.is_ducking = False
             self.is_running = True
             self.is_jumping = False
             self.is_air_ducking = False
-        elif userInput[pygame.K_DOWN] and self.is_jumping:
+        elif action == 2 and self.is_jumping:
             self.is_ducking = False
             self.is_running = False
             self.is_jumping = False

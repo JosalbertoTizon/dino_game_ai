@@ -9,6 +9,9 @@ class Game:
         # Game mode
         self.training_mode = training
 
+        # Choose if game can be played manually
+        self.manual_playing = True
+
         # Screen settings
         self.screen_width, self.screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
         self.screen = pygame.display.set_mode((self.screen_width, self.screen_height))
@@ -53,131 +56,143 @@ class Game:
         # Game State
         self.state = self.get_state()
 
-    def loop(self):
+    def step(self, action=0):
         # Main game loop
-        while True:
-            dt = self.clock.tick(60) * self.speed_multiplier / 1000  # Amount of seconds between each loop
-            self.frame += 1
+        dt = self.clock.tick(60) * self.speed_multiplier / 1000  # Amount of seconds between each loop
+        self.frame += 1
+        game_over = False
 
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_h:
-                        self.show_hitbox = not self.show_hitbox
-                    elif event.key == pygame.K_x:
-                        self.speed_multiplier = min(10, self.speed_multiplier + 1)
-                    elif event.key == pygame.K_z:
-                        self.speed_multiplier = max(1, self.speed_multiplier - 1)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_h:
+                    self.show_hitbox = not self.show_hitbox
+                elif event.key == pygame.K_x:
+                    self.speed_multiplier = min(10, self.speed_multiplier + 1)
+                elif event.key == pygame.K_z:
+                    self.speed_multiplier = max(1, self.speed_multiplier - 1)
 
-            # Draw the clear background screen
-            self.screen.fill((247, 247, 247))
+        # Draw the clear background screen
+        self.screen.fill((247, 247, 247))
 
-            # Update and draw player
+        # Convert pressed keys to actions
+        if self.manual_playing:
             keys = pygame.key.get_pressed()
-            self.player.update(keys, dt)
-            self.player.draw(self.screen)
+            if keys[pygame.K_UP] or keys[pygame.K_SPACE]:
+                action = 1  # Jump
+            elif keys[pygame.K_DOWN]:
+                action = 2  # Duck
+            else:
+                action = 0  # No action
 
-            # Obstacle generation logic
-            if len(self.obstacles) == 0:
+        # Update and draw player
+        self.player.update(action, dt)
+        self.player.draw(self.screen)
+
+        # Obstacle generation logic
+        if len(self.obstacles) == 0:
+            if random.randint(0, 2) == 0:
+                self.obstacles.append(SmallCactus(self.SMALL_CACTUS, self.obstacles))
+            elif random.randint(0, 2) == 1:
+                self.obstacles.append(LargeCactus(self.LARGE_CACTUS, self.obstacles))
+            elif random.randint(0, 2) == 2:
+                self.obstacles.append(Bird(self.BIRD, self.obstacles))
+        elif len(self.obstacles) == 1 and self.obstacles[0].rect.x < SCREEN_WIDTH * (
+                1 - 1 / MINIMUM_OBSTACLE_DISTANCE_RATIO):
+            new_obstacle_prob = random.randint(0, int(100 / MAX_OBSTACLE_PROB) - 1)
+            if new_obstacle_prob == 0:
                 if random.randint(0, 2) == 0:
                     self.obstacles.append(SmallCactus(self.SMALL_CACTUS, self.obstacles))
                 elif random.randint(0, 2) == 1:
                     self.obstacles.append(LargeCactus(self.LARGE_CACTUS, self.obstacles))
                 elif random.randint(0, 2) == 2:
                     self.obstacles.append(Bird(self.BIRD, self.obstacles))
-            elif len(self.obstacles) == 1 and self.obstacles[0].rect.x < SCREEN_WIDTH * (1 - 1 / MINIMUM_OBSTACLE_DISTANCE_RATIO):
-                new_obstacle_prob = random.randint(0, int(100 / MAX_OBSTACLE_PROB) - 1)
-                if new_obstacle_prob == 0:
-                    if random.randint(0, 2) == 0:
-                        self.obstacles.append(SmallCactus(self.SMALL_CACTUS, self.obstacles))
-                    elif random.randint(0, 2) == 1:
-                        self.obstacles.append(LargeCactus(self.LARGE_CACTUS, self.obstacles))
-                    elif random.randint(0, 2) == 2:
-                        self.obstacles.append(Bird(self.BIRD, self.obstacles))
 
-            # Move the track texture horizontally
-            self.track_x -= self.movement_speed * dt  # Adjust the speed as needed
-            if self.track_x <= -self.track_rect.width:
-                self.track_x = 0
+        # Move the track texture horizontally
+        self.track_x -= self.movement_speed * dt  # Adjust the speed as needed
+        if self.track_x <= -self.track_rect.width:
+            self.track_x = 0
 
-            # Updates score, number of obstacles and increases movement speed
-            if self.frame * self.speed_multiplier % 7 == 0:
-                self.score += 1
-                if self.score % D_SCORE_TO_INCREASE_SPEED == 0:
-                    if self.movement_speed <= MAX_SPEED - SPEED_INCREMENT:
-                        self.movement_speed += SPEED_INCREMENT
-                if self.score % D_SCORE_TO_INCREASE_PROB == 0:
-                    if self.obstacle_prob <= MAX_OBSTACLE_PROB:
-                        self.obstacle_prob += OBSTACLE_PROB_INCREMENT
+        # Updates score, number of obstacles and increases movement speed
+        if self.frame * self.speed_multiplier % 7 == 0:
+            self.score += 1
+            if self.score % D_SCORE_TO_INCREASE_SPEED == 0:
+                if self.movement_speed <= MAX_SPEED - SPEED_INCREMENT:
+                    self.movement_speed += SPEED_INCREMENT
+            if self.score % D_SCORE_TO_INCREASE_PROB == 0:
+                if self.obstacle_prob <= MAX_OBSTACLE_PROB:
+                    self.obstacle_prob += OBSTACLE_PROB_INCREMENT
 
+        # Draw the track with horizontal scrolling
+        self.screen.blit(self.TRACK_TEXTURE, (self.track_x, self.track_rect.y))
+        self.screen.blit(self.TRACK_TEXTURE, (self.track_x + self.track_rect.width, self.track_rect.y))
 
-            # Draw the track with horizontal scrolling
-            self.screen.blit(self.TRACK_TEXTURE, (self.track_x, self.track_rect.y))
-            self.screen.blit(self.TRACK_TEXTURE, (self.track_x + self.track_rect.width, self.track_rect.y))
+        # Draw obstacles
+        for obstacle in self.obstacles:
+            obstacle.draw(self.screen)
+            obstacle.update(self.movement_speed, dt)
+            if self.player.rect.colliderect(obstacle.rect):
+                game_over = True
+                final_score = self.score
+                self.score = 0
+                self.movement_speed = INITIAL_MOVEMENT_SPEED
+                self.obstacles = []
+                # Game Over Screen
+                while game_over:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            pygame.quit()
+                            quit()
+                        if event.type == pygame.KEYDOWN:
+                            if event.key:
+                                game_over = False
+                    self.screen.fill((247, 247, 247))  # Clear screen
 
-            # Draw obstacles
+                    # Ends Game if training
+                    if self.training_mode:
+                        return [self.get_state(), 0, self.speed_multiplier, game_over]
+
+                    # Fonts
+                    game_over_font = pygame.font.Font(None, 72)
+                    score_font = pygame.font.Font(None, 36)
+
+                    # Game Over Message
+                    game_over_text = game_over_font.render("G A M E   O V E R", True, (0, 0, 0))
+                    game_over_text_rect = game_over_text.get_rect(
+                        center=(self.screen_width // 2, self.screen_height // 2 - 50))
+                    self.screen.blit(game_over_text, game_over_text_rect)
+
+                    # Final Score Message
+                    score_text = score_font.render(f"Score: {final_score}", True, (0, 0, 0))
+                    score_text_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
+                    self.screen.blit(score_text, score_text_rect)
+
+                    pygame.display.update()
+
+        # Draw hitbox
+        if self.show_hitbox:
+            pygame.draw.rect(self.screen, (255, 0, 0), self.player.rect, 2)
             for obstacle in self.obstacles:
-                obstacle.draw(self.screen)
-                obstacle.update(self.movement_speed, dt)
-                if self.player.rect.colliderect(obstacle.rect):
-                    game_over = True
-                    final_score = self.score
-                    self.score = 0
-                    self.movement_speed = INITIAL_MOVEMENT_SPEED
-                    self.obstacles = []
-                    # Game Over Screen
-                    while game_over:
-                        for event in pygame.event.get():
-                            if event.type == pygame.QUIT:
-                                pygame.quit()
-                                quit()
-                            if event.type == pygame.KEYDOWN:
-                                if event.key:
-                                    game_over = False
-                        self.screen.fill((247, 247, 247))  # Clear screen
+                pygame.draw.rect(self.screen, (0, 255, 0), obstacle.rect, 3)
 
-                        # Ends Game if training
-                        if self.training_mode:
-                            return [final_score, self.speed_multiplier]
+        # Display the message at the top of the window
+        message = "Press H to turn ON/OFF hitbox"
+        message_text = self.small_font.render(message, True, (255, 0, 0))  # Red color
+        self.screen.blit(message_text, (10, 10))
 
-                        # Fonts
-                        game_over_font = pygame.font.Font(None, 72)
-                        score_font = pygame.font.Font(None, 36)
+        # Display the score on the screen
+        score_text = self.font.render(f"Score: {int(self.score)}", True, (0, 0, 0))
+        self.screen.blit(score_text, (10, 50))
 
-                        # Game Over Message
-                        game_over_text = game_over_font.render("G A M E   O V E R", True, (0, 0, 0))
-                        game_over_text_rect = game_over_text.get_rect(
-                            center=(self.screen_width // 2, self.screen_height // 2 - 50))
-                        self.screen.blit(game_over_text, game_over_text_rect)
+        # Display the speed multiplier on the screen
+        speed_text = self.font.render(f"Simulation Speed: {self.speed_multiplier}x", True, (0, 0, 0))
+        self.screen.blit(speed_text, (10, 90))
+        pygame.display.flip()
 
-                        # Final Score Message
-                        score_text = score_font.render(f"Score: {final_score}", True, (0, 0, 0))
-                        score_text_rect = score_text.get_rect(center=(self.screen_width // 2, self.screen_height // 2))
-                        self.screen.blit(score_text, score_text_rect)
-
-                        pygame.display.update()
-
-            # Draw hitbox
-            if self.show_hitbox:
-                pygame.draw.rect(self.screen, (255, 0, 0), self.player.rect, 2)
-                for obstacle in self.obstacles:
-                    pygame.draw.rect(self.screen, (0, 255, 0), obstacle.rect, 3)
-
-            # Display the message at the top of the window
-            message = "Press H to turn ON/OFF hitbox"
-            message_text = self.small_font.render(message, True, (255, 0, 0))  # Red color
-            self.screen.blit(message_text, (10, 10))
-
-            # Display the score on the screen
-            score_text = self.font.render(f"Score: {int(self.score)}", True, (0, 0, 0))
-            self.screen.blit(score_text, (10, 50))
-
-            # Display the speed multiplier on the screen
-            speed_text = self.font.render(f"Simulation Speed: {self.speed_multiplier}x", True, (0, 0, 0))
-            self.screen.blit(speed_text, (10, 90))
-            pygame.display.flip()
+        if self.training_mode:
+            return [self.get_state(), 1, self.speed_multiplier, game_over]
 
     def get_state(self):
 
