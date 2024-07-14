@@ -61,6 +61,7 @@ class Game:
         dt = self.clock.tick(60) * self.speed_multiplier / 1000  # Amount of seconds between each loop
         self.frame += 1
         game_over = False
+        show_game_over_screen = False
         reward = 0
 
         for event in pygame.event.get():
@@ -151,7 +152,7 @@ class Game:
                     self.movement_speed = INITIAL_MOVEMENT_SPEED
                     self.obstacles = []
                     # Game Over Screen
-                    while game_over:
+                    while show_game_over_screen and game_over:
                         for event in pygame.event.get():
                             if event.type == pygame.QUIT:
                                 pygame.quit()

@@ -46,10 +46,6 @@ for episode in range(1, NUM_EPISODES + 1):
         # Reshape to keep compatibility with Keras
         next_state = np.reshape(next_state, [1, state_size])
 
-        # Simple reward shaping: positive reward for surviving, negative for game over
-        if done:
-            reward -= 200
-
         # Append experience to replay buffer
         agent.remember(state, action, reward, next_state, done)
         state = next_state
