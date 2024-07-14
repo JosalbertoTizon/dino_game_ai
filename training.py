@@ -7,15 +7,16 @@ from game import Game
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress informational messages and warnings
 
 # Hyperparameters
-NUM_EPISODES = 300  # Number of episodes used for training
+EPISODE_TIME = 100  # Episode duration in seconds
+NUM_EPISODES = 10  # Number of episodes used for training
 batch_size = 32  # Batch size used for experience replay
 
+
 # Comment this line to enable training using your GPU
-# os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
+#  os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 # Initialize the game environment
 speed_multiplier = 1
-training = True
 
 # Create the DQN agent
 state_size = 10  # Your game state size
@@ -27,17 +28,19 @@ return_history = []
 # Training loop
 for episode in range(1, NUM_EPISODES + 1):
     # Reset the environment
-    game = Game(speed_multiplier, training)
+    game = Game(speed_multiplier, True)
     state = game.get_state()
     state = np.reshape(state, [1, state_size])
     cumulative_reward = 0.0
-    done = False
+    elapsed_time = 0
 
-    while not done:
+    while elapsed_time < EPISODE_TIME:
+
         # Select action
         action = agent.act(state)
         # Take action, observe reward and new state
-        next_state, reward, speed_multiplier, game_over = game.step(action)
+        next_state, reward, speed_multiplier, game_over, dt = game.step(action)
+        elapsed_time += dt
         done = game_over
 
         # Reshape to keep compatibility with Keras
@@ -77,15 +80,14 @@ plt.pause(1.0)
 
 # Start playing indefinitely after trained
 while True:
-    game = Game(speed_multiplier, training)
+    game = Game(speed_multiplier, False)
     state = game.get_state()
     state = np.reshape(state, [1, state_size])
-    done = False
+    game_over = False
 
-    while not done:
+    while not game_over:
         action = agent.act(state)
-        next_state, _, speed_multiplier, game_over = game.step(action)
-        done = game_over
+        next_state, _, speed_multiplier, game_over, _ = game.step(action)
         next_state = np.reshape(next_state, [1, state_size])
         state = next_state
 

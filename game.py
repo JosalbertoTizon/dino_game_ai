@@ -117,8 +117,8 @@ class Game:
 
         scored_this_frame = False
         # Updates score, number of obstacles and increases movement speed
-        if self.frame * self.speed_multiplier % 7 == 0:
-            self.score += 1
+        if self.frame % 7 == 0:
+            self.score += self.speed_multiplier
             scored_this_frame = True
             if self.score % D_SCORE_TO_INCREASE_SPEED == 0:
                 if self.movement_speed <= MAX_SPEED - SPEED_INCREMENT:
@@ -136,25 +136,26 @@ class Game:
             obstacle.update(self.movement_speed, dt)
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
-                game_over = True
-                final_score = self.score
-                self.score = 0
-                self.movement_speed = INITIAL_MOVEMENT_SPEED
-                self.obstacles = []
-                # Game Over Screen
-                while game_over:
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
-                            pygame.quit()
-                            quit()
-                        if event.type == pygame.KEYDOWN:
-                            if event.key:
-                                game_over = False
-                    self.screen.fill((247, 247, 247))  # Clear screen
+                if not self.training_mode:
+                    game_over = True
+                    final_score = self.score
+                    self.score = 0
+                    self.movement_speed = INITIAL_MOVEMENT_SPEED
+                    self.obstacles = []
+                    # Game Over Screen
+                    while game_over:
+                        for event in pygame.event.get():
+                            if event.type == pygame.QUIT:
+                                pygame.quit()
+                                quit()
+                            if event.type == pygame.KEYDOWN:
+                                if event.key:
+                                    game_over = False
+                        self.screen.fill((247, 247, 247))  # Clear screen
 
                     # Ends Game if training
                     if self.training_mode:
-                        return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over]
+                        return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over, dt]
 
                     # Fonts
                     game_over_font = pygame.font.Font(None, 72)
@@ -194,7 +195,7 @@ class Game:
         pygame.display.flip()
 
         if self.training_mode:
-            return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over]
+            return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over, dt]
 
     def get_state(self):
 
