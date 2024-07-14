@@ -51,6 +51,7 @@ class DQNAgent:
         history = self.model.fit(np.array(states), np.array(targets), epochs=1, verbose=0)
         # Keeping track of loss
         loss = history.history['loss'][0]
+        self.memory.clear()
         return loss
 
     def update_epsilon(self):

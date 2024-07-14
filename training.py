@@ -52,9 +52,9 @@ for episode in range(1, NUM_EPISODES + 1):
         # Accumulate reward
         cumulative_reward += reward
 
-        # Update policy if enough experience
-        if len(agent.memory) > 2 * batch_size:
-            loss = agent.replay(batch_size)
+    # Update policy if enough experience
+    if len(agent.memory) > 4 * batch_size:
+        loss = agent.replay(batch_size)
 
     return_history.append(cumulative_reward)
     agent.update_epsilon()
@@ -62,12 +62,12 @@ for episode in range(1, NUM_EPISODES + 1):
     print(f"Episode: {episode}/{NUM_EPISODES}, Score: {cumulative_reward}, Epsilon: {agent.epsilon}")
 
     # Plot and save model every 20 episodes
-    if episode % 20 == 0:
-        plt.plot(return_history, 'b')
-        plt.xlabel('Episode')
-        plt.ylabel('Return')
-        plt.show(block=False)
-        plt.pause(0.1)
-        plt.savefig('dqn_training.png')
+    # if episode % 20 == 0:
+    #     plt.plot(return_history, 'b')
+    #     plt.xlabel('Episode')
+    #     plt.ylabel('Return')
+    #     plt.show(block=False)
+    #     plt.pause(0.1)
+    #     plt.savefig('dqn_training.png')
 
 plt.pause(1.0)

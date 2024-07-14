@@ -131,8 +131,8 @@ class Game:
 
         # Draw obstacles
         for obstacle in self.obstacles:
-            obstacle.draw(self.screen)
             obstacle.update(self.movement_speed, dt)
+            obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
                 game_over = True
                 final_score = self.score
