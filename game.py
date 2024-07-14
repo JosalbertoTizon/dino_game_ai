@@ -115,9 +115,11 @@ class Game:
         if self.track_x <= -self.track_rect.width:
             self.track_x = 0
 
+        scored_this_frame = False
         # Updates score, number of obstacles and increases movement speed
         if self.frame * self.speed_multiplier % 7 == 0:
             self.score += 1
+            scored_this_frame = True
             if self.score % D_SCORE_TO_INCREASE_SPEED == 0:
                 if self.movement_speed <= MAX_SPEED - SPEED_INCREMENT:
                     self.movement_speed += SPEED_INCREMENT
@@ -152,7 +154,7 @@ class Game:
 
                     # Ends Game if training
                     if self.training_mode:
-                        return [self.get_state(), self.speed_multiplier, game_over]
+                        return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over]
 
                     # Fonts
                     game_over_font = pygame.font.Font(None, 72)
@@ -192,7 +194,7 @@ class Game:
         pygame.display.flip()
 
         if self.training_mode:
-            return [self.get_state(), self.speed_multiplier, game_over]
+            return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over]
 
     def get_state(self):
 
@@ -203,6 +205,8 @@ class Game:
         # Identify next obstacle
         if self.obstacles:
             next_obstacle = self.obstacles[0]
+            if len(self.obstacles) > 1 and self.obstacles[0].rect.x < 300:
+                next_obstacle = self.obstacles[1]
             # Get bird position
             if type(next_obstacle).__name__ == "Bird":
                 bird_y = next_obstacle.rect.y

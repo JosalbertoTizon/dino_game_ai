@@ -24,6 +24,7 @@ agent = DQNAgent(state_size, action_size)
 
 return_history = []
 
+# Training loop
 for episode in range(1, NUM_EPISODES + 1):
     # Reset the environment
     game = Game(speed_multiplier, training)
@@ -36,14 +37,15 @@ for episode in range(1, NUM_EPISODES + 1):
         # Select action
         action = agent.act(state)
         # Take action, observe reward and new state
-        next_state, speed_multiplier, game_over = game.step(action)
+        next_state, reward, speed_multiplier, game_over = game.step(action)
         done = game_over
 
         # Reshape to keep compatibility with Keras
         next_state = np.reshape(next_state, [1, state_size])
 
         # Simple reward shaping: positive reward for surviving, negative for game over
-        reward = 1 if not done else -10
+        if done:
+            reward -= 200
 
         # Append experience to replay buffer
         agent.remember(state, action, reward, next_state, done)
@@ -55,6 +57,7 @@ for episode in range(1, NUM_EPISODES + 1):
     # Update policy if enough experience
     if len(agent.memory) > 4 * batch_size:
         loss = agent.replay(batch_size)
+        agent.clear_memory()
 
     return_history.append(cumulative_reward)
     agent.update_epsilon()
@@ -71,3 +74,20 @@ for episode in range(1, NUM_EPISODES + 1):
     #     plt.savefig('dqn_training.png')
 
 plt.pause(1.0)
+
+# Start playing indefinitely after trained
+while True:
+    game = Game(speed_multiplier, training)
+    state = game.get_state()
+    state = np.reshape(state, [1, state_size])
+    done = False
+
+    while not done:
+        action = agent.act(state)
+        next_state, _, speed_multiplier, game_over = game.step(action)
+        done = game_over
+        next_state = np.reshape(next_state, [1, state_size])
+        state = next_state
+
+    print("Game over! Restarting...")
+
