@@ -72,8 +72,8 @@ class Game:
                 if event.key == pygame.K_h:
                     self.show_hitbox = not self.show_hitbox
                 elif event.key == pygame.K_x:
-                    self.speed_multiplier = min(30, self.speed_multiplier + 1)
-                elif event.key == pygame.K_z:
+                    self.speed_multiplier = min(10, self.speed_multiplier + 1)  # The game's physics don't work properly
+                elif event.key == pygame.K_z:  # with speeds greater than 10
                     self.speed_multiplier = max(1, self.speed_multiplier - 1)
 
         # Draw the clear background screen
@@ -138,11 +138,11 @@ class Game:
             obstacles_length = len(self.obstacles)
             obstacle.update(self.movement_speed, dt)
             if len(self.obstacles) < obstacles_length:
-                reward = 1
+                reward += 20
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
                 if self.training_mode:
-                    reward = -5
+                    reward -= 20  # The penalty ends up being far greater than the reward since it's per frame of collision
                     # Ends Game
                     return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
                 else:
@@ -196,7 +196,7 @@ class Game:
         self.screen.blit(score_text, (10, 50))
 
         # Display the speed multiplier on the screen
-        speed_text = self.font.render(f"Simulation Speed: {self.speed_multiplier}x", True, (0, 0, 0))
+        speed_text = self.font.render(f"Simulation Speed (Press Z/X): {self.speed_multiplier}x", True, (0, 0, 0))
         self.screen.blit(speed_text, (10, 90))
         pygame.display.flip()
 
@@ -211,27 +211,24 @@ class Game:
         # Identify next obstacle
         if self.obstacles:
             next_obstacle = self.obstacles[0]
+            # If dino gets past first obstacle, then move to the next one
             if len(self.obstacles) > 1 and self.obstacles[0].rect.x < 300:
                 next_obstacle = self.obstacles[1]
-            # Get bird position
-            if type(next_obstacle).__name__ == "Bird":
-                bird_y = next_obstacle.rect.y
-            else:
-                bird_y = 0
+            # Get obstacle position
+            obstacle_y = next_obstacle.rect.y
             distance_to_next = next_obstacle.rect.x - self.player.rect.x
             obstacle_height = next_obstacle.rect.height
             obstacle_width = next_obstacle.rect.width
         else:
-            bird_y, distance_to_next, obstacle_height, obstacle_width = 0, 0, 0, 0
+            obstacle_y, distance_to_next, obstacle_height, obstacle_width = 0, 0, 0, 0
 
         # Return current state
         return [
             player_speed,
-            player_height,
             distance_to_next,
             obstacle_height,
             obstacle_width,
-            bird_y,
+            obstacle_y,
             int(self.player.is_jumping),
             int(self.player.is_running),
             int(self.player.is_ducking),

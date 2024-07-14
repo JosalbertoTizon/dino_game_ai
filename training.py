@@ -3,9 +3,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 from game import Game
-from constants import *
 
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress informational messages and warnings
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress informational messages and warnings
 
 # Hyperparameters
 EPISODE_TIME = 100  # Episode duration in seconds
@@ -19,7 +18,7 @@ batch_size = 32  # Batch size used for experience replay
 speed_multiplier = 1
 
 # Create the DQN agent
-state_size = 10  # Your game state size
+state_size = 9  # Your game state size
 action_size = 3  # Number of actions: 0 (No action), 1 (Jump), 2 (Duck)
 agent = DQNAgent(state_size, action_size)
 
@@ -43,29 +42,43 @@ for episode in range(1, NUM_EPISODES + 1):
         done = game_over
 
         # Improve reward
-        is_cactus = 1 if (state[0][5] == FLOOR_HEIGHT - 10 or state[0][5] == FLOOR_HEIGHT - 30) else 0
-        close_to_cactus = 1 if state[0][2] < 200 else 0
-        reward += state[0][7] - state[0][8] - close_to_cactus * is_cactus * state[0][8] * 10
+        is_low = 1 if (state[0][4] > 400) else 0
+        close_to_obstacle = 1 if state[0][1] < 200 else 0
+        is_jumping = state[0][5]
+        is_ducking = state[0][7]
+
+        # Penalize for not jumping over low obstacles
+        reward += - close_to_obstacle * is_low * (not is_jumping) * 30
+
+        # Penalize for jumping when far away from low obstacles
+        reward += - (not close_to_obstacle) * is_low * is_jumping * 100
+
+        # Penalize for not ducking below high birds
+        reward += - close_to_obstacle * (not is_low) * (not is_ducking) * 30
+
+        # Penalize severely for ducking when far away from high birds
+        reward += - (not close_to_obstacle) * (not is_low) * is_ducking * 100
+
+        # Add a small reward for jumping so that it doesn't duck all time
+        reward += is_jumping * 10
 
         # Reshape to keep compatibility with Keras
         next_state = np.reshape(next_state, [1, state_size])
 
         # Append experience to replay buffer
-        agent.remember(state, action, reward, next_state, done)
+        agent.append_experience(state, action, reward, next_state, done)
         state = next_state
 
         # Accumulate reward
         cumulative_reward += reward
 
     # Update policy if enough experience
-    if len(agent.memory) > 4 * batch_size:
-        loss = agent.replay(batch_size)
-        agent.clear_memory()
+    if len(agent.replay_buffer) > 4 * batch_size and episode % 5 == 0:  # The policy will not be updated after
+        loss = agent.replay(batch_size)                                 # each epoch since it's too time-consuming
 
-    return_history.append(cumulative_reward)
     agent.update_epsilon()
 
-    print(f"Episode: {episode}/{NUM_EPISODES}, Score: {cumulative_reward}, Epsilon: {agent.epsilon}")
+    print(f"Episode: {episode}/{NUM_EPISODES}, Reward: {cumulative_reward}, Epsilon: {agent.epsilon}")
 
     # Plot and save model every 20 episodes
     # if episode % 20 == 0:

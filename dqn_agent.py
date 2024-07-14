@@ -9,7 +9,7 @@ class DQNAgent:
                  learning_rate=0.001, buffer_size=4098):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=buffer_size)
+        self.replay_buffer = deque(maxlen=buffer_size)
         self.gamma = gamma
         self.epsilon = epsilon
         self.epsilon_decay = epsilon_decay
@@ -19,7 +19,7 @@ class DQNAgent:
 
     def build_model(self):
         model = models.Sequential()
-        model.add(layers.Dense(32, activation='relu', input_dim=10))  # Assuming 10 input features
+        model.add(layers.Dense(32, activation='relu', input_dim=9))  # Assuming 9 input states
         model.add(layers.Dense(32, activation='relu'))
         model.add(layers.Dense(16, activation='relu'))
         model.add(layers.Dense(16, activation='relu'))
@@ -27,22 +27,22 @@ class DQNAgent:
         model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
         return model
 
-    def remember(self, state, action, reward, next_state, done):
-        self.memory.append((state, action, reward, next_state, done))
+    def append_experience(self, state, action, reward, next_state, done):
+        self.replay_buffer.append((state, action, reward, next_state, done))
 
     def act(self, state):
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size)
-        act_values = self.model.predict(state)
+        act_values = self.model.predict(state, verbose=0)
         return np.argmax(act_values[0])
 
     def replay(self, batch_size):
-        minibatch = random.sample(self.memory, batch_size)
+        minibatch = random.sample(self.replay_buffer, batch_size)
         states, targets = [], []
         for state, action, reward, next_state, done in minibatch:
-            target = self.model.predict(state)
+            target = self.model.predict(state, verbose=0)
             if not done:
-                target[0][action] = reward + self.gamma * np.max(self.model.predict(next_state)[0])
+                target[0][action] = reward + self.gamma * np.max(self.model.predict(next_state, verbose=0)[0])
             else:
                 target[0][action] = reward
             # Filtering out states and targets for training
@@ -51,12 +51,13 @@ class DQNAgent:
         history = self.model.fit(np.array(states), np.array(targets), epochs=1, verbose=0)
         # Keeping track of loss
         loss = history.history['loss'][0]
+
+        # Inform the user about the learning process
+        print(f"Replay complete. Loss from network training with minibatch: {loss:.4f}")
+
         return loss
 
     def update_epsilon(self):
         self.epsilon *= self.epsilon_decay
         if self.epsilon < self.epsilon_min:
             self.epsilon = self.epsilon_min
-
-    def clear_memory(self):
-        self.memory.clear()
