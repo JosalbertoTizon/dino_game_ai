@@ -7,7 +7,7 @@ from game import Game
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress informational messages and warnings
 
 # Hyperparameters
-EPISODE_TIME = 100  # Episode duration in seconds
+EPISODE_TIME = 10  # Episode duration in seconds
 NUM_EPISODES = 10  # Number of episodes used for training
 batch_size = 32  # Batch size used for experience replay
 

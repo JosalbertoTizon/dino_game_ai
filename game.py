@@ -61,6 +61,7 @@ class Game:
         dt = self.clock.tick(60) * self.speed_multiplier / 1000  # Amount of seconds between each loop
         self.frame += 1
         game_over = False
+        reward = 0
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -70,7 +71,7 @@ class Game:
                 if event.key == pygame.K_h:
                     self.show_hitbox = not self.show_hitbox
                 elif event.key == pygame.K_x:
-                    self.speed_multiplier = min(10, self.speed_multiplier + 1)
+                    self.speed_multiplier = min(30, self.speed_multiplier + 1)
                 elif event.key == pygame.K_z:
                     self.speed_multiplier = max(1, self.speed_multiplier - 1)
 
@@ -133,10 +134,17 @@ class Game:
 
         # Draw obstacles
         for obstacle in self.obstacles:
+            obstacles_length = len(self.obstacles)
             obstacle.update(self.movement_speed, dt)
+            if len(self.obstacles) < obstacles_length:
+                reward = 1
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
-                if not self.training_mode:
+                if self.training_mode:
+                    reward = -5
+                    # Ends Game
+                    return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
+                else:
                     game_over = True
                     final_score = self.score
                     self.score = 0
@@ -152,10 +160,6 @@ class Game:
                                 if event.key:
                                     game_over = False
                         self.screen.fill((247, 247, 247))  # Clear screen
-
-                    # Ends Game if training
-                    if self.training_mode:
-                        return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over, dt]
 
                     # Fonts
                     game_over_font = pygame.font.Font(None, 72)
@@ -173,6 +177,7 @@ class Game:
                     self.screen.blit(score_text, score_text_rect)
 
                     pygame.display.update()
+                    return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
 
         # Draw hitbox
         if self.show_hitbox:
@@ -194,8 +199,7 @@ class Game:
         self.screen.blit(speed_text, (10, 90))
         pygame.display.flip()
 
-        if self.training_mode:
-            return [self.get_state(), scored_this_frame, self.speed_multiplier, game_over, dt]
+        return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
 
     def get_state(self):
 
