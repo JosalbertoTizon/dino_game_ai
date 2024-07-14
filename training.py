@@ -3,14 +3,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 from game import Game
+from constants import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Suppress informational messages and warnings
 
 # Hyperparameters
-EPISODE_TIME = 10  # Episode duration in seconds
-NUM_EPISODES = 10  # Number of episodes used for training
+EPISODE_TIME = 100  # Episode duration in seconds
+NUM_EPISODES = 300  # Number of episodes used for training
 batch_size = 32  # Batch size used for experience replay
-
 
 # Comment this line to enable training using your GPU
 #  os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
@@ -35,13 +35,17 @@ for episode in range(1, NUM_EPISODES + 1):
     elapsed_time = 0
 
     while elapsed_time < EPISODE_TIME:
-
         # Select action
         action = agent.act(state)
         # Take action, observe reward and new state
         next_state, reward, speed_multiplier, game_over, dt = game.step(action)
         elapsed_time += dt
         done = game_over
+
+        # Improve reward
+        is_cactus = 1 if (state[0][5] == FLOOR_HEIGHT - 10 or state[0][5] == FLOOR_HEIGHT - 30) else 0
+        close_to_cactus = 1 if state[0][2] < 200 else 0
+        reward += state[0][7] - state[0][8] - close_to_cactus * is_cactus * state[0][8] * 10
 
         # Reshape to keep compatibility with Keras
         next_state = np.reshape(next_state, [1, state_size])
@@ -88,4 +92,3 @@ while True:
         state = next_state
 
     print("Game over! Restarting...")
-

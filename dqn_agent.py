@@ -19,12 +19,12 @@ class DQNAgent:
 
     def build_model(self):
         model = models.Sequential()
-
-        model.add(layers.Dense(2, activation='relu'))
-        model.add(layers.Dense(2, activation='relu'))
+        model.add(layers.Dense(32, activation='relu', input_dim=10))  # Assuming 10 input features
+        model.add(layers.Dense(32, activation='relu'))
+        model.add(layers.Dense(16, activation='relu'))
+        model.add(layers.Dense(16, activation='relu'))
         model.add(layers.Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
-
         return model
 
     def remember(self, state, action, reward, next_state, done):
