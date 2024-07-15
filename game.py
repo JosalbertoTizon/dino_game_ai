@@ -144,6 +144,9 @@ class Game:
                 if self.training_mode:
                     reward -= 20  # The penalty ends up being far greater than the reward since it's per frame of collision
                     # Ends Game
+                    self.score = 0
+                    self.movement_speed = INITIAL_MOVEMENT_SPEED
+                    self.obstacles = []
                     return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
                 else:
                     game_over = True
