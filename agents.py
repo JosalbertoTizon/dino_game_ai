@@ -28,20 +28,20 @@ class Dinosaur:
         self.rect.x = self.X_POS + 100
         self.rect.y = self.Y_POS
 
-    def update(self, action, dt):
+    def update(self, action, dt, speed_multiplier):
         if self.is_ducking:
             self.duck()
         if self.is_running:
             self.run()
         if self.is_jumping:
-            self.jump(dt)
+            self.jump(dt, speed_multiplier)
         if self.is_air_ducking:
-            self.air_duck(dt)
+            self.air_duck(dt, speed_multiplier)
 
         if self.step_index >= 10:
             self.step_index = 0
 
-        if action == 1 and not self.is_air_ducking and not self.is_ducking:
+        if action == 1 and not self.is_air_ducking:
             self.is_ducking = False
             self.is_running = False
             self.is_jumping = True
@@ -78,18 +78,18 @@ class Dinosaur:
         self.rect.height = 0.7 * self.rect.height
         self.step_index += 1
 
-    def jump(self, dt):
+    def jump(self, dt, speed_multiplier):
         self.image = self.jump_img
-        self.rect.y -= self.jump_vel * dt
+        self.rect.y -= self.jump_vel * dt / speed_multiplier ** (1 / 2)
         self.jump_vel -= GRAVITY * dt
         if self.rect.y >= FLOOR_HEIGHT:
             self.is_jumping = False
             self.jump_vel = JUMP_STRENGTH
             self.rect.y = FLOOR_HEIGHT
 
-    def air_duck(self, dt):
+    def air_duck(self, dt, speed_multiplier):
         self.image = self.duck_img[self.step_index // 5]
-        self.rect.y -= self.jump_vel * dt
+        self.rect.y -= self.jump_vel * dt / speed_multiplier ** (1 / 2)
         self.jump_vel -= 3.0 * GRAVITY * dt
         if self.rect.y > FLOOR_HEIGHT:
             self.is_air_ducking = False

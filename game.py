@@ -140,7 +140,7 @@ class Game:
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
                 if self.training_mode:
-                    reward -= 1
+                    reward -= 20
                     # Ends Game
                     self.score = 0
                     self.movement_speed = INITIAL_MOVEMENT_SPEED
