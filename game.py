@@ -206,7 +206,7 @@ class Game:
 
         # Player state
         player_speed = self.movement_speed
-        player_height = self.player.rect.y
+        player_y = self.player.rect.y
 
         # Identify next obstacle
         if self.obstacles:
@@ -225,6 +225,7 @@ class Game:
         # Return current state
         return [
             player_speed,
+            player_y,
             distance_to_next,
             obstacle_height,
             obstacle_width,

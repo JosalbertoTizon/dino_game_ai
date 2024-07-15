@@ -18,7 +18,7 @@ batch_size = 32  # Batch size used for experience replay
 speed_multiplier = 1
 
 # Create the DQN agent
-state_size = 9  # Your game state size
+state_size = 10  # Your game state size
 action_size = 3  # Number of actions: 0 (No action), 1 (Jump), 2 (Duck)
 agent = DQNAgent(state_size, action_size)
 
@@ -42,10 +42,10 @@ for episode in range(1, NUM_EPISODES + 1):
         done = game_over
 
         # Improve reward
-        is_low = 1 if (state[0][4] > 400) else 0
-        close_to_obstacle = 1 if state[0][1] < 200 else 0
-        is_jumping = state[0][5]
-        is_ducking = state[0][7]
+        is_low = 1 if (state[0][5] > 400) else 0
+        close_to_obstacle = 1 if state[0][2] < 200 else 0
+        is_jumping = state[0][6]
+        is_ducking = state[0][8]
 
         # Penalize for not jumping over low obstacles
         reward += - close_to_obstacle * is_low * (not is_jumping) * 30
