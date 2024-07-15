@@ -1,5 +1,4 @@
 import os
-import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 from game import Game
@@ -94,13 +93,11 @@ plt.pause(1.0)
 while True:
     game = Game(speed_multiplier, False)
     state = game.get_state()
-    state = np.reshape(state, [1, state_size])
     game_over = False
 
     while not game_over:
         action = agent.act(state)
         next_state, _, speed_multiplier, game_over, _ = game.step(action)
-        next_state = np.reshape(next_state, [1, state_size])
         state = next_state
 
     print("Game over! Restarting...")
