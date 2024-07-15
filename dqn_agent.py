@@ -19,7 +19,7 @@ class DQNAgent:
 
     def build_model(self):
         model = models.Sequential()
-        model.add(layers.Dense(32, activation='relu', input_dim=9))  # Assuming 9 input states
+        model.add(layers.Dense(32, activation='relu', input_dim=10))  # Assuming 10 input states
         model.add(layers.Dense(32, activation='relu'))
         model.add(layers.Dense(16, activation='relu'))
         model.add(layers.Dense(16, activation='relu'))

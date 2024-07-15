@@ -3,12 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 from game import Game
+from constants import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress informational messages and warnings
 
 # Hyperparameters
 EPISODE_TIME = 100  # Episode duration in seconds
-NUM_EPISODES = 300  # Number of episodes used for training
+NUM_EPISODES = 150  # Number of episodes used for training
 batch_size = 32  # Batch size used for experience replay
 
 # Comment this line to enable training using your GPU
@@ -18,7 +19,7 @@ batch_size = 32  # Batch size used for experience replay
 speed_multiplier = 1
 
 # Create the DQN agent
-state_size = 9  # Your game state size
+state_size = 10  # Your game state size
 action_size = 3  # Number of actions: 0 (No action), 1 (Jump), 2 (Duck)
 agent = DQNAgent(state_size, action_size)
 
@@ -41,11 +42,18 @@ for episode in range(1, NUM_EPISODES + 1):
         elapsed_time += dt
         done = game_over
 
+        # Normalize state
+        next_state[0] = next_state[0] / MAX_SPEED
+        next_state[1] = next_state[0] / SCREEN_WIDTH
+        next_state[2] = next_state[0] / (SCREEN_HEIGHT / 6)
+        next_state[3] = next_state[0] / (SCREEN_WIDTH / 6)
+        next_state[4] = next_state[4] / SCREEN_HEIGHT
+
         # Improve reward
-        is_low = 1 if (state[0][4] > 400) else 0
-        close_to_obstacle = 1 if state[0][1] < 200 else 0
-        is_jumping = state[0][5]
-        is_ducking = state[0][7]
+        is_low = 1 if (state[0][5] > 400) else 0
+        close_to_obstacle = 1 if state[0][2] < 200 else 0
+        is_jumping = state[0][6]
+        is_ducking = state[0][8]
 
         # Penalize for not jumping over low obstacles
         reward += - close_to_obstacle * is_low * (not is_jumping) * 30
@@ -61,6 +69,9 @@ for episode in range(1, NUM_EPISODES + 1):
 
         # Add a small reward for jumping so that it doesn't duck all time
         reward += is_jumping * 10
+
+        # Correct reward according to simulation speed
+        reward = reward * speed_multiplier  # Since all rewards are per frame
 
         # Reshape to keep compatibility with Keras
         next_state = np.reshape(next_state, [1, state_size])

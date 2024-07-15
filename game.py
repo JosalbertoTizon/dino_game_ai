@@ -11,6 +11,7 @@ class Game:
 
         # Choose if game can be played manually
         self.manual_playing = False
+        # self.manual_playing = True
 
         # Screen settings
         self.screen_width, self.screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
@@ -58,7 +59,7 @@ class Game:
 
     def step(self, action=0):
         # Main game loop
-        dt = self.clock.tick(60) * self.speed_multiplier / 1000  # Amount of seconds between each loop
+        dt = self.clock.tick(240) * self.speed_multiplier / 1000  # Amount of seconds between each loop
         self.frame += 1
         game_over = False
         show_game_over_screen = False
@@ -90,7 +91,7 @@ class Game:
                 action = 0  # No action
 
         # Update and draw player
-        self.player.update(action, dt)
+        self.player.update(action, dt, self.speed_multiplier)
         self.player.draw(self.screen)
 
         # Obstacle generation logic
@@ -135,15 +136,15 @@ class Game:
 
         # Draw obstacles
         for obstacle in self.obstacles:
-            obstacles_length = len(self.obstacles)
             obstacle.update(self.movement_speed, dt)
-            if len(self.obstacles) < obstacles_length:
-                reward += 20
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
                 if self.training_mode:
-                    reward -= 20  # The penalty ends up being far greater than the reward since it's per frame of collision
+                    reward -= 1
                     # Ends Game
+                    self.score = 0
+                    self.movement_speed = INITIAL_MOVEMENT_SPEED
+                    self.obstacles = []
                     return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
                 else:
                     game_over = True
@@ -206,7 +207,7 @@ class Game:
 
         # Player state
         player_speed = self.movement_speed
-        player_height = self.player.rect.y
+        player_y = self.player.rect.y
 
         # Identify next obstacle
         if self.obstacles:
@@ -220,11 +221,12 @@ class Game:
             obstacle_height = next_obstacle.rect.height
             obstacle_width = next_obstacle.rect.width
         else:
-            obstacle_y, distance_to_next, obstacle_height, obstacle_width = 0, 0, 0, 0
+            obstacle_y, distance_to_next, obstacle_height, obstacle_width = 0, 1200, 0, 0
 
         # Return current state
         return [
             player_speed,
+            player_y,
             distance_to_next,
             obstacle_height,
             obstacle_width,
