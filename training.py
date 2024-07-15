@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from dqn_agent import DQNAgent
 from game import Game
-from constants import *
 
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress informational messages and warnings
 
@@ -30,7 +29,6 @@ for episode in range(1, NUM_EPISODES + 1):
     # Reset the environment
     game = Game(speed_multiplier, True)
     state = game.get_state()
-    state = np.reshape(state, [1, state_size])
     cumulative_reward = 0.0
     elapsed_time = 0
 
@@ -42,18 +40,11 @@ for episode in range(1, NUM_EPISODES + 1):
         elapsed_time += dt
         done = game_over
 
-        # Normalize state
-        next_state[0] = next_state[0] / MAX_SPEED
-        next_state[1] = next_state[0] / SCREEN_WIDTH
-        next_state[2] = next_state[0] / (SCREEN_HEIGHT / 6)
-        next_state[3] = next_state[0] / (SCREEN_WIDTH / 6)
-        next_state[4] = next_state[4] / SCREEN_HEIGHT
-
         # Improve reward
-        is_low = 1 if (state[0][5] > 400) else 0
-        close_to_obstacle = 1 if state[0][2] < 200 else 0
-        is_jumping = state[0][6]
-        is_ducking = state[0][8]
+        is_low = 1 if (state[5] > 400) else 0
+        close_to_obstacle = 1 if 0 < state[2] < 200 else 0
+        is_jumping = state[6]
+        is_ducking = state[8]
 
         # Penalize for not jumping over low obstacles
         reward += - close_to_obstacle * is_low * (not is_jumping) * 30
@@ -72,9 +63,6 @@ for episode in range(1, NUM_EPISODES + 1):
 
         # Correct reward according to simulation speed
         reward = reward * speed_multiplier  # Since all rewards are per frame
-
-        # Reshape to keep compatibility with Keras
-        next_state = np.reshape(next_state, [1, state_size])
 
         # Append experience to replay buffer
         agent.append_experience(state, action, reward, next_state, done)

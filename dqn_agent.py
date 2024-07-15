@@ -2,6 +2,18 @@ import numpy as np
 import random
 from collections import deque
 from tensorflow.keras import models, layers, optimizers, activations, losses
+from constants import *
+
+
+def normalize_state(state):
+    state[0][0] = state[0][0] / MAX_SPEED
+    state[0][1] = state[0][1] / SCREEN_HEIGHT
+    state[0][2] = state[0][2] / SCREEN_WIDTH
+    state[0][3] = state[0][3] / SCREEN_HEIGHT
+    state[0][4] = state[0][4] / SCREEN_WIDTH
+    state[0][5] = state[0][5] / SCREEN_HEIGHT
+
+    return state
 
 
 class DQNAgent:
@@ -31,18 +43,27 @@ class DQNAgent:
         self.replay_buffer.append((state, action, reward, next_state, done))
 
     def act(self, state):
+        state = np.reshape(state, [1, self.state_size])
+        normalized_state = normalize_state(state)
+
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size)
-        act_values = self.model.predict(state, verbose=0)
+        act_values = self.model.predict(normalized_state, verbose=0)
         return np.argmax(act_values[0])
 
     def replay(self, batch_size):
         minibatch = random.sample(self.replay_buffer, batch_size)
         states, targets = [], []
         for state, action, reward, next_state, done in minibatch:
-            target = self.model.predict(state, verbose=0)
+            state = np.reshape(state, [1, self.state_size])
+            normalized_state = normalize_state(state)
+            next_state = np.reshape(next_state, [1, self.state_size])
+            normalized_next_state = normalize_state(next_state)
+
+            target = self.model.predict(normalized_state, verbose=0)
             if not done:
-                target[0][action] = reward + self.gamma * np.max(self.model.predict(next_state, verbose=0)[0])
+                target[0][action] = reward + self.gamma * np.max(
+                    self.model.predict(normalized_next_state, verbose=0)[0])
             else:
                 target[0][action] = reward
             # Filtering out states and targets for training
