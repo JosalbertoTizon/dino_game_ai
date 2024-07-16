@@ -3,15 +3,14 @@ from agents import *
 
 
 class Game:
-    def __init__(self, speed_multiplier=1, training=False):
+    def __init__(self, speed_multiplier=1, training=False, manual_playing=False):
         pygame.init()
 
         # Game mode
         self.training_mode = training
 
         # Choose if game can be played manually
-        self.manual_playing = False
-        # self.manual_playing = True
+        self.manual_playing = manual_playing
 
         # Screen settings
         self.screen_width, self.screen_height = SCREEN_WIDTH, SCREEN_HEIGHT
@@ -140,11 +139,14 @@ class Game:
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
                 if self.training_mode:
+                    reward += (self.score / 5) ** 3 if self.score < 50 else 1000
                     reward -= 20
                     # Ends Game
                     self.score = 0
-                    self.movement_speed = INITIAL_MOVEMENT_SPEED
-                    self.obstacles = []
+                    # TESTING IF CONTINUING GAME AFTER DEAD IS BETTER (BUT ZEROING SCORE)
+                    # UNCOMMENT THIS TO MAKE IT RESTART WHEN DIES   
+                    # self.movement_speed = INITIAL_MOVEMENT_SPEED
+                    # self.obstacles = []
                     return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
                 else:
                     game_over = True
@@ -179,6 +181,8 @@ class Game:
                     self.screen.blit(score_text, score_text_rect)
 
                     pygame.display.update()
+
+                    reward += (self.score / 10) ** 3 if self.score < 50 else 125
                     return [self.get_state(), reward, self.speed_multiplier, game_over, dt]
 
         # Draw hitbox
@@ -212,16 +216,24 @@ class Game:
         # Identify next obstacle
         if self.obstacles:
             next_obstacle = self.obstacles[0]
-            # If dino gets past first obstacle, then move to the next one
-            if len(self.obstacles) > 1 and self.obstacles[0].rect.x < 300:
-                next_obstacle = self.obstacles[1]
+            if len(self.obstacles) > 1:
+                other_obstacle = self.obstacles[1]
+            else:
+                other_obstacle = None
             # Get obstacle position
             obstacle_y = next_obstacle.rect.y
             distance_to_next = next_obstacle.rect.x - self.player.rect.x
             obstacle_height = next_obstacle.rect.height
             obstacle_width = next_obstacle.rect.width
+
+            # Get distance to the second obstacle if it exists
+            if other_obstacle:
+                distance_to_other = other_obstacle.rect.x - self.player.rect.x
+            else:
+                distance_to_other = 1200
+
         else:
-            obstacle_y, distance_to_next, obstacle_height, obstacle_width = 0, 1200, 0, 0
+            obstacle_y, distance_to_next, distance_to_other, obstacle_height, obstacle_width = 0, 1200, 1200, 0, 0
 
         # Return current state
         return [
@@ -235,6 +247,7 @@ class Game:
             int(self.player.is_running),
             int(self.player.is_ducking),
             int(self.player.is_air_ducking),
+            distance_to_other,
         ]
 
     def load_textures(self):
