@@ -13,12 +13,13 @@ def normalize_state(state):
     normalized_state[0][3] = state[0][3] / SCREEN_HEIGHT
     normalized_state[0][4] = state[0][4] / SCREEN_WIDTH
     normalized_state[0][5] = state[0][5] / SCREEN_HEIGHT
+    normalized_state[0][10] = state[0][10] / SCREEN_WIDTH
 
     return normalized_state
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size, gamma=0.95, epsilon=0.5, epsilon_min=0.01, epsilon_decay=0.98,
+    def __init__(self, state_size, action_size, gamma=0.9, epsilon=0.7, epsilon_min=0.01, epsilon_decay=0.998,
                  learning_rate=0.001, buffer_size=4098):
         self.state_size = state_size
         self.action_size = action_size
@@ -32,10 +33,8 @@ class DQNAgent:
 
     def build_model(self):
         model = models.Sequential()
-        model.add(layers.Dense(32, activation='relu', input_dim=11))  # Assuming 11 input states
+        model.add(layers.Dense(32, activation='relu'))  # Assuming 11 input states
         model.add(layers.Dense(32, activation='relu'))
-        model.add(layers.Dense(16, activation='relu'))
-        model.add(layers.Dense(16, activation='relu'))
         model.add(layers.Dense(self.action_size, activation='linear'))
         model.compile(loss='mse', optimizer=optimizers.Adam(learning_rate=self.learning_rate))
         return model
@@ -88,7 +87,7 @@ class DQNAgent:
         self.model.load_weights(name)
 
     def save(self, name):
-        self.model.save_weights(name)
+        self.model.save_weights(name + ".weights.h5")
 
     def get_q_table(self):
         return self.model.get_weights()
