@@ -23,6 +23,7 @@ action_size = 3  # Number of actions: 0 (No action), 1 (Jump), 2 (Duck)
 agent = DQNAgent(state_size, action_size)
 
 return_history = []
+loss_history = []
 
 # Training loop
 for episode in range(1, NUM_EPISODES + 1):
@@ -85,15 +86,23 @@ for episode in range(1, NUM_EPISODES + 1):
     print(f"Episode: {episode}/{NUM_EPISODES}, Reward: {cumulative_reward}, Epsilon: {agent.epsilon}")
 
     return_history.append(cumulative_reward)
+    loss_history.append(episode_loss)
 
     # Plot and save model every 15 episodes
-    if episode % 15 == 0:
+    if episode % 20 == 0:
         plt.plot(return_history, 'b')
         plt.xlabel('Episode')
         plt.ylabel('Return')
         plt.show(block=False)
         plt.pause(0.1)
         plt.savefig('dqn_training.png')
+
+        plt.plot(loss_history, 'r')
+        plt.xlabel('Episode')
+        plt.ylabel('Loss')
+        plt.show(block=False)
+        plt.pause(0.1)
+        plt.savefig('dqn_loss.png')
         agent.save("dino_game")
 
 plt.pause(1.0)
