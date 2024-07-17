@@ -56,11 +56,11 @@ class Dinosaur:
             self.is_running = True
             self.is_jumping = False
             self.is_air_ducking = False
-        elif action == 2 and self.is_jumping:
-            self.is_ducking = False
-            self.is_running = False
-            self.is_jumping = False
-            self.is_air_ducking = True
+        # elif action == 2 and self.is_jumping:
+        #     self.is_ducking = False
+        #     self.is_running = False
+        #     self.is_jumping = False
+        #     self.is_air_ducking = True
 
     def duck(self):
         self.image = self.duck_img[self.step_index // 5]
@@ -105,6 +105,8 @@ class Obstacle:
         self.image = image
         self.type = type
         self.rect = self.image[self.type].get_rect()
+        self.rect.width = 0.7 * self.rect.width
+        self.rect.height = 0.7 * self.rect.height
         self.rect.x = SCREEN_WIDTH
         self.obstacles = obstacles
 

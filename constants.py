@@ -1,7 +1,7 @@
 SCREEN_WIDTH = 1200  # in pixels
 SCREEN_HEIGHT = 675  # in pixels
 INITIAL_MOVEMENT_SPEED = 500  # in pixels per second
-SPEED_INCREMENT = 50  # movement speed increment for score
+SPEED_INCREMENT = 0  # movement speed increment for score
 MAX_SPEED = 2000  # maximum movement speed
 BIRD_RELATIVE_SPEED = 80
 INITIAL_OBSTACLE_PROB = 5  # in percentage
