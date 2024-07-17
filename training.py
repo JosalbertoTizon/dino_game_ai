@@ -22,8 +22,7 @@ state_size = 11  # Your game state size
 action_size = 3  # Number of actions: 0 (No action), 1 (Jump), 2 (Duck)
 agent = DQNAgent(state_size, action_size)
 
-reward_history = []
-loss_history = []
+return_history = []
 
 # Training loop
 for episode in range(1, NUM_EPISODES + 1):
@@ -85,41 +84,24 @@ for episode in range(1, NUM_EPISODES + 1):
 
     print(f"Episode: {episode}/{NUM_EPISODES}, Reward: {cumulative_reward}, Epsilon: {agent.epsilon}")
 
-    reward_history.append(cumulative_reward)
-    loss_history.append(episode_loss)
+    return_history.append(cumulative_reward)
 
-print(reward_history)
-print(loss_history)
-# nao ta funcionando (era pra plotar) !!!
-# # Ensure the arrays are one-dimensional
-# reward_history = np.squeeze(reward_history)
-# loss_history = np.squeeze(loss_history)
-#
-# # Check the dimensions of the arrays
-# print("Reward history shape:", reward_history.shape)
-# print("Loss history shape:", loss_history.shape)
-#
-# # Plotting the histories
-# plt.figure(figsize=(12, 5))
-#
-# # Plot loss history
-# plt.subplot(1, 2, 1)
-# plt.plot(loss_history, label='Loss per Epoch')
-# plt.xlabel('Epoch')
-# plt.ylabel('Loss')
-# plt.title('Loss History')
-# plt.legend()
-#
-# # Plot reward history
-# plt.subplot(1, 2, 2)
-# plt.plot(reward_history, label='Reward per Epoch')
-# plt.xlabel('Epoch')
-# plt.ylabel('Reward')
-# plt.title('Reward History')
-# plt.legend()
-#
-# plt.tight_layout()
-# plt.show()
+    # Plot and save model every 15 episodes
+    if episode % 15 == 0:
+        plt.plot(return_history, 'b')
+        plt.xlabel('Episode')
+        plt.ylabel('Return')
+        plt.show(block=False)
+        plt.pause(0.1)
+        plt.savefig('dqn_training.png')
+        agent.save("dino_game.h5")
+
+plt.pause(1.0)
+
+q_table = agent.get_q_table()
+print("Q-table weights:")
+for layer_weights in q_table:
+    print(layer_weights)
 
 # Start playing indefinitely after trained
 while True:
