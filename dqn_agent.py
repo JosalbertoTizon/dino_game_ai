@@ -6,14 +6,15 @@ from constants import *
 
 
 def normalize_state(state):
-    state[0][0] = state[0][0] / MAX_SPEED
-    state[0][1] = state[0][1] / SCREEN_HEIGHT
-    state[0][2] = state[0][2] / SCREEN_WIDTH
-    state[0][3] = state[0][3] / SCREEN_HEIGHT
-    state[0][4] = state[0][4] / SCREEN_WIDTH
-    state[0][5] = state[0][5] / SCREEN_HEIGHT
+    normalized_state = np.copy(state)
+    normalized_state[0][0] = state[0][0] / MAX_SPEED
+    normalized_state[0][1] = state[0][1] / SCREEN_HEIGHT
+    normalized_state[0][2] = state[0][2] / SCREEN_WIDTH
+    normalized_state[0][3] = state[0][3] / SCREEN_HEIGHT
+    normalized_state[0][4] = state[0][4] / SCREEN_WIDTH
+    normalized_state[0][5] = state[0][5] / SCREEN_HEIGHT
 
-    return state
+    return normalized_state
 
 
 class DQNAgent:
