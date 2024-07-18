@@ -34,7 +34,7 @@ class Game:
         self.small_font = pygame.font.Font(None, 24)  # Font for displaying the small message
 
         # Hitbox display flag
-        self.show_hitbox = True
+        self.show_hitbox = False
 
         # Game movement speed variable
         self.movement_speed = INITIAL_MOVEMENT_SPEED
@@ -139,8 +139,8 @@ class Game:
             obstacle.draw(self.screen)
             if self.player.rect.colliderect(obstacle.rect):
                 if self.training_mode:
-                    reward += (self.score / 5) ** 3 if self.score < 50 else 1000
-                    reward -= 20
+                    reward += (self.score / 2) ** 2
+                    reward -= 625
                     # Ends Game
                     self.score = 0
                     # TESTING IF CONTINUING GAME AFTER DEAD IS BETTER (BUT ZEROING SCORE)

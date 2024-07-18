@@ -7,8 +7,8 @@ from game import Game
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'  # Suppress informational messages and warnings
 
 # Hyperparameters
-EPISODE_TIME = 50  # Episode duration in seconds
-NUM_EPISODES = 300  # Number of episodes used for training
+EPISODE_TIME = 10  # Episode duration in seconds
+NUM_EPISODES = 1000  # Number of episodes used for training
 batch_size = 32  # Batch size used for experience replay
 
 # Comment this line to enable training using your GPU
@@ -25,10 +25,14 @@ agent = DQNAgent(state_size, action_size)
 return_history = []
 loss_history = []
 
+# Use the lines bellow to choose if playing manually
+manual_playing = False
+# manual_playing = True
+
 # Training loop
 for episode in range(1, NUM_EPISODES + 1):
     # Reset the environment
-    game = Game(speed_multiplier, True, False)
+    game = Game(speed_multiplier, True, manual_playing)
     state = game.get_state()
     cumulative_reward = 0.0
     elapsed_time = 0
@@ -54,17 +58,17 @@ for episode in range(1, NUM_EPISODES + 1):
         is_jumping = state[6]
         is_ducking = state[8]
 
-        # Penalize for not jumping over low obstacles
-        reward += - (close_to_obstacle * is_low * (not is_jumping)) * 10
+        # Reward for jumping over low obstacles
+        reward += (close_to_obstacle * is_low * is_jumping) * 25
 
         # Penalize for jumping when far away from obstacles
-        reward += - (far_from_obstacle * is_jumping and state[2] > 300) * 30
+        reward += - (far_from_obstacle * is_jumping and state[2] > 300) * 100
 
-        # Penalize for not ducking below high birds
-        reward += - (close_to_obstacle * (not is_low) * (not is_ducking)) * 10
+        # Reward for ducking below high birds
+        reward += (close_to_obstacle * is_low * is_ducking) * 25
 
         # Penalize for ducking when far away from obstacles
-        reward += - (far_from_obstacle * is_ducking * state[2] > 300) * 30
+        reward += - (far_from_obstacle * is_ducking * state[2] > 300) * 50
 
         # Correct reward according to simulation speed
         reward = reward * speed_multiplier  # Since all rewards are per frame
@@ -77,7 +81,7 @@ for episode in range(1, NUM_EPISODES + 1):
         cumulative_reward += reward
 
     # Update policy if enough experience
-    if len(agent.replay_buffer) > 4 * batch_size:
+    if len(agent.replay_buffer) > 4 * batch_size and episode % 5 == 0:
         loss = agent.replay(batch_size)
         episode_loss = loss
 
@@ -96,13 +100,14 @@ for episode in range(1, NUM_EPISODES + 1):
         plt.show(block=False)
         plt.pause(0.1)
         plt.savefig('dqn_training.png')
+
         plt.plot(loss_history, 'r')
         plt.xlabel('Episode')
         plt.ylabel('Loss')
         plt.show(block=False)
         plt.pause(0.1)
         plt.savefig('dqn_loss.png')
-        agent.save("dino_game.h5")
+        agent.save("dino_game")
 
 plt.pause(1.0)
 
@@ -116,6 +121,7 @@ while True:
     game = Game(speed_multiplier, False, False)
     state = game.get_state()
     game_over = False
+    agent.epsilon = 0
 
     while not game_over:
         action = agent.act(state)
