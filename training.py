@@ -25,10 +25,14 @@ agent = DQNAgent(state_size, action_size)
 return_history = []
 loss_history = []
 
+# Use the lines bellow to choose if playing manually
+manual_playing = False
+# manual_playing = True
+
 # Training loop
 for episode in range(1, NUM_EPISODES + 1):
     # Reset the environment
-    game = Game(speed_multiplier, True, False)
+    game = Game(speed_multiplier, True, manual_playing)
     state = game.get_state()
     cumulative_reward = 0.0
     elapsed_time = 0

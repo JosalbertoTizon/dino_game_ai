@@ -34,7 +34,7 @@ class Game:
         self.small_font = pygame.font.Font(None, 24)  # Font for displaying the small message
 
         # Hitbox display flag
-        self.show_hitbox = True
+        self.show_hitbox = False
 
         # Game movement speed variable
         self.movement_speed = INITIAL_MOVEMENT_SPEED
